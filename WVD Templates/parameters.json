@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "baseUrl": {
+            "value": "https://catalogartifact.azureedge.net/publicartifacts/rds.wvd-provision-host-pool-2636b3e1-9f2b-4349-aeeb-5d84d41b6a3e-preview/Artifacts"
+        },
+        "rdshImageSource": {
+            "value": "CustomImage"
+        },
+        "vmImageVhdUri": {
+            "value": ""
+        },
+        "rdshGalleryImageSKU": {
+            "value": "Windows-10-Enterprise-multi-session"
+        },
+        "rdshCustomImageSourceName": {
+            "value": "MSAA-WVD-Image"
+        },
+        "rdshCustomImageSourceResourceGroup": {
+            "value": "AADDS"
+        },
+        "rdshNamePrefix": {
+            "value": "MSAA-WVD"
+        },
+        "rdshNumberOfInstances": {
+            "value": 2
+        },
+        "rdshVMDiskType": {
+            "value": "SSD"
+        },
+        "rdshVmSize": {
+            "value": "Standard_B2ms"
+        },
+        "enableAcceleratedNetworking": {
+            "value": false
+        },
+        "rdshUseManagedDisks": {
+            "value": true
+        },
+        "storageAccountResourceGroupName": {
+            "value": ""
+        },
+        "domainToJoin": {
+            "value": "MSAzureAcademy.com"
+        },
+        "existingDomainUPN": {
+            "value": "WVD@MSAzureAcademy.com"
+        },
+        "existingDomainPassword": {
+            "value": null
+        },
+        "ouPath": {
+            "value": ""
+        },
+        "existingVnetName": {
+            "value": "qwe-vnet01"
+        },
+        "existingSubnetName": {
+            "value": "qweHostPool"
+        },
+        "virtualNetworkResourceGroupName": {
+            "value": "WVD-vNET"
+        },
+        "rdBrokerURL": {
+            "value": "https://rdbroker.wvd.microsoft.com"
+        },
+        "existingTenantGroupName": {
+            "value": "Default Tenant Group"
+        },
+        "existingTenantName": {
+            "value": "MSAA-Tenant"
+        },
+        "hostPoolName": {
+            "value": "MSAA-HostPool"
+        },
+        "enablePersistentDesktop": {
+            "value": false
+        },
+        "defaultDesktopUsers": {
+            "value": "WVD@MSAzureAcademy.com,Batman@MSAzureAcademy.com,Superman@MSAzureAcademy.com"
+        },
+        "tenantAdminUpnOrApplicationId": {
+            "value": "WVD@MSAzureAcademy.com"
+        },
+        "tenantAdminPassword": {
+            "value": null
+        },
+        "isServicePrincipal": {
+            "value": false
+        },
+        "aadTenantId": {
+            "value": ""
+        },
+        "location": {
+            "value": "eastus2"
+        }
+    }
+}
