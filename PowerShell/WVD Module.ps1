@@ -133,6 +133,27 @@ Begin {
             Install-Module -Name $Module -Force -Verbose -ErrorAction Stop    
         }
     ""
+    $AzureAD = Get-AzureADDomain -ErrorAction SilentlyContinue
+    IF(($AzureAD) -eq $null) {
+        Write-Host `
+            -ForegroundColor Red `
+            -BackgroundColor Black `
+            "Authentication required for Azure AD"
+        Wait-Event -Timeout 2
+        ""
+        $Credential = Get-Credential
+        Connect-AzureAD -Credential $Credential        
+    }
+    Else {
+        Write-Host `
+            -ForegroundColor Green `
+            -BackgroundColor Black `
+            "Azure AD authentication complete...processing request"
+
+    }
+    ""
+
+
     $AzureADGlobalAdmin =$TenantAdmin.Split('@')[0]
     $AzureADDomainName = $TenantAdmin.Split('@')[1]
 }
@@ -189,13 +210,13 @@ Function New-AzureWVDPrep {
  .Parameter AzureADDomainName
     Azure AD Domain Name, i.e. MSAzureAcademy.com
 
- .Parameter TenantName
+ .Parameter WVDTenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter TenantGroup
+ .Parameter WVDTenantGroup
     Tenant Group name, by default the first group is called ''
 
- .Parameter HostPool
+ .Parameter WVDHostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
  .Parameter FirstAppGroupName
@@ -229,7 +250,7 @@ Param (
     [Parameter(Mandatory=$true)]
         [string]$TenantGroup,
     [Parameter(Mandatory=$true)]
-        [string]$HostPool,
+        [string]$HostPoolName,
     [Parameter(Mandatory=$true)]
         [string]$FirstAppGroupName
 )
@@ -367,10 +388,10 @@ Function New-AzureWVDApps {
  .Description
     Take Apps installed on the Session Host Servers & map them to your Start Menu
          
- .Parameter TenantName
+ .Parameter WVDTenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter HostPool
+ .Parameter WVDHostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
 .Parameter RemoteApps    
@@ -379,8 +400,8 @@ Function New-AzureWVDApps {
  .Example    
      # Map Windows Virtual Desktop Apps to your Start Menu
     New-AzureWVDApps `        
-        -TenantName MSAA-Tenant `        
-        -HostPool MSAA-HostPool `
+        -WVDTenantName MSAA-Tenant `        
+        -WVDHostPoolName MSAA-HostPool `
         -RemoteApps $RemoteApps
 
 #>
@@ -389,7 +410,7 @@ Param (
     [Parameter(Mandatory=$true)]
         [string]$TenantName,    
     [Parameter(Mandatory=$true)]
-        [string]$HostPool,
+        [string]$HostPoolName,
     [Parameter(Mandatory=$true)]
         [string]$RemoteApps
 )
@@ -448,27 +469,27 @@ Process {
     #   Get Install App Data to create Start Menu Items    # 
     ########################################################
     $RemoteApps = @(
-        @{AppGroupName = 'Win10-WVD'; FilePath = '7zFM.exe'}    
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'Calc.exe'}    
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'Code.exe'}
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'FoxITReader.exe'}
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'HandBrake.exe'}
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'Paint.net'}
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'Putty.exe'}
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'VLC.exe'}
-        @{AppGroupName = 'Win10-WVD'; FilePath = 'WinRar'}
-    )
+        @{AppGroupName = 'MSAA-WVD'; FilePath = '7zFM.exe'}    
+        @{AppGroupName = 'MSAA-WVD'; FilePath = 'Calc.exe'}    
+        @{AppGroupName = 'MSAA-WVD'; FilePath = 'Code.exe'}
+        @{AppGroupName = 'MSAA-WVD'; FilePath = 'FoxITReader.exe'}
+        @{AppGroupName = 'MSAA-WVD'; FilePath = 'HandBrake.exe'}
+        @{AppGroupName = 'MSAA-WVD'; FilePath = 'Paint.net'}
+        @{AppGroupName = 'MSAA-WVD'; FilePath = 'Putty.exe'}
+       # @{AppGroupName = 'MSAA-WVD'; FilePath = 'VLC.exe'}
+        @{AppGroupName = 'MSAA-WVD'; FilePath = 'WinRar'}
+    )        
     foreach ($App in $RemoteApps) {
         Get-RdsStartMenuApp `
             -TenantName $TenantName `
-            -HostPoolName $HostPool `
+            -HostPoolName $HostPoolName `
             -AppGroupName $App.AppGroupName `
                 | ? FilePath -Match $App.FilePath `
                 -OutVariable NewApp
            
         New-RdsRemoteApp `
             -TenantName $TenantName `
-            -HostPoolName $HostPool `
+            -HostPoolName $HostPoolName `
             -AppGroupName $App.AppGroupName `
             -Name $NewApp.FriendlyName `
             -Filepath $NewApp.filepath  `
@@ -498,17 +519,17 @@ Function Remove-AzureWVD {
         Host Pools
         Tenant
          
- .Parameter TenantName
+ .Parameter WVDTenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter HostPool
+ .Parameter WVDHostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
  .Example    
      # Clean up WVD
     Remove-AzureWVD `        
-        -TenantName MSAA-Tenant `        
-        -HostPool MSAA-HostPool
+        -WVDTenantName MSAA-Tenant `        
+        -WVDHostPoolName MSAA-HostPool
 
 #>
 [Cmdletbinding()]
@@ -516,7 +537,7 @@ Param (
     [Parameter(Mandatory=$true)]
         [string]$TenantName,    
     [Parameter(Mandatory=$true)]
-        [string]$HostPool
+        [string]$HostPoolName
 )
 
 Begin {
@@ -589,30 +610,30 @@ Begin {
 Process {
     $AppGroup = Get-RdsAppGroup `
         -TenantName $TenantName `
-        -HostPoolName $HostPool `
+        -HostPoolName $HostPoolName `
         | ? -Property AppGroupName `
             -NE 'Desktop Application Group' `
             -ErrorAction SilentlyContinue
     foreach ($APG in $AppGroup) {        
         Get-RdsRemoteApp `
             -TenantName $TenantName `
-            -HostPoolName $HostPool `
+            -HostPoolName $HostPoolName `
             -AppGroupName $APG.AppGroupName `
             | Remove-RdsRemoteApp
         Get-RdsAppGroupUser `
             -TenantName $TenantName `
-            -HostPoolName $HostPool `
+            -HostPoolName $HostPoolName `
             -AppGroupName $APG.AppGroupName `
             | Remove-RdsAppGroupUser        
         $APG | Remove-RdsAppGroup 
         Remove-RdsAppGroup `
             -TenantName $TenantName `
-            -HostPoolName $HostPool `
+            -HostPoolName $HostPoolName `
             -Name 'Desktop Application Group'
     }     
     Get-RdsSessionHost `
         -TenantName $TenantName `
-        -HostPoolName $HostPool `
+        -HostPoolName $HostPoolName `
         -ErrorAction SilentlyContinue `
         | Remove-RdsSessionHost
     Get-RdsHostPool `
