@@ -8,6 +8,7 @@
 # 03/28/2019                     1.0        Intial Version
 # 04/01/2019                     1.1        Add Set-AzureWVDLBType
 # 04/04/2019                     1.2        Change Add-RDSAccount to IF/Else
+# 04/16/2019                     1.3        Add TenantAdmin Creds variable for Authentication
 
 #*********************************************************************************
 #
@@ -28,7 +29,7 @@ Function Add-AzureWVDAppGroupUsers {
  .Parameter TenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter HostPool
+ .Parameter HostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
 .Parameter RemoteAppGroup   
@@ -41,21 +42,21 @@ Function Add-AzureWVDAppGroupUsers {
      # Map Windows Virtual Desktop Apps to your Start Menu
     Add-AzureWVDAppGroupUsers `        
         -TenantName MSAA-Tenant `        
-        -HostPool MSAA-HostPool `
+        -HostPoolName MSAA-HostPool `
         -RemoteAppGroup RemoteAppGroup `
-        -TenantAdmin
+        -TenantAdmin WVD@Contoso.com
 
 #>
 [Cmdletbinding()]
 Param (    
     [Parameter(Mandatory=$true)]
+        [string]$TenantAdmin,
+    [Parameter(Mandatory=$true)]
         [string]$TenantName,    
     [Parameter(Mandatory=$true)]
-        [string]$HostPool,
+        [string]$HostPoolName,
     [Parameter(Mandatory=$true)]
-        [string]$RemoteAppGroup,
-    [Parameter(Mandatory=$true)]
-        [string]$TenantAdmin
+        [string]$RemoteAppGroup
 )
 
 Begin {
@@ -94,8 +95,11 @@ Begin {
     IF(($RDSContext) -eq $null) {
         Write-Host -ForegroundColor Cyan -BackgroundColor Black "Beginning RDS Authentication"
         Wait-Event -Timeout 2
-        Add-RdsAccount `
-            -DeploymentUrl “https://rdbroker.wvd.microsoft.com”
+        $creds = Get-Credential `
+            -UserName $TenantAdmin `
+            -Message "Enter Password for WVD Tenant Credentials"
+        Add-RdsAccount "https://rdbroker.wvd.microsoft.com" `
+            -Credential $creds
         Set-RdsContext `
             -TenantGroupName 'Default Tenant Group'
     }
@@ -168,7 +172,7 @@ Process {
     foreach ($u in $Users) {
         Add-RdsAppGroupUser `
             -TenantName $TenantName `
-            -HostPoolName $HostPool `
+            -HostPoolName $HostPoolName `
             -AppGroupName $RemoteAppGroup `
             -UserPrincipalName $U.UserPrincipalName `
             -ErrorAction SilentlyContinue `
@@ -210,13 +214,13 @@ Function New-AzureWVDPrep {
  .Parameter AzureADDomainName
     Azure AD Domain Name, i.e. MSAzureAcademy.com
 
- .Parameter WVDTenantName
+ .Parameter TenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter WVDTenantGroup
+ .Parameter TenantGroup
     Tenant Group name, by default the first group is called ''
 
- .Parameter WVDHostPoolName
+ .Parameter HostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
  .Parameter FirstAppGroupName
@@ -231,7 +235,7 @@ Function New-AzureWVDPrep {
         -AzureADDomainName MSAzureAcademy.com `
         -TenantName My-Tenant `
         -TenantGroup 'Default Tenant Group' `
-        -HostPool My-HostPool `
+        -HostPoolName My-HostPool `
         -FirstAppGroupName MyRemoteApps `
 
 #>
@@ -242,13 +246,11 @@ Param (
     [Parameter(Mandatory=$true)]
         [string]$SubscriptionID,
     [Parameter(Mandatory=$true)]
-        [string]$AzureADGlobalAdmin,
-    [Parameter(Mandatory=$true)]
-        [string]$AzureADDomainName,
+        [string]$TenantAdmin,
+    [Parameter(Mandatory=$false)]
+        [string]$TenantGroup = 'Default Tenant Group',
     [Parameter(Mandatory=$true)]
         [string]$TenantName,
-    [Parameter(Mandatory=$true)]
-        [string]$TenantGroup,
     [Parameter(Mandatory=$true)]
         [string]$HostPoolName,
     [Parameter(Mandatory=$true)]
@@ -292,8 +294,11 @@ Begin {
     IF(($RDSContext) -eq $null) {
         Write-Host -ForegroundColor Cyan -BackgroundColor Black "Beginning RDS Authentication"
         Wait-Event -Timeout 2
-        Add-RdsAccount `
-            -DeploymentUrl “https://rdbroker.wvd.microsoft.com”
+        $creds = Get-Credential `
+            -UserName $TenantAdmin `
+            -Message "Enter Password for WVD Tenant Credentials"
+        Add-RdsAccount "https://rdbroker.wvd.microsoft.com" `
+            -Credential $creds
         Set-RdsContext `
             -TenantGroupName 'Default Tenant Group'
     }
@@ -316,30 +321,30 @@ Process {
         -AzureSubscriptionId $SubscriptionID 
     New-RdsHostPool `
         -TenantName $TenantName `
-        -Name $HostPool `
-        -FriendlyName $HostPool
+        -Name $HostPoolName `
+        -FriendlyName $HostPoolName
     New-RdsRoleAssignment `
         -RoleDefinitionName 'RDS Owner' `
-        -SignInName $FQDN `
+        -SignInName $TenantAdmin `
         -TenantGroupName $TenantGroup `
         -TenantName $TenantName `
-        -HostPoolName $HostPool `
+        -HostPoolName $HostPoolName `
         -AADTenantId $AADTenantID `
         -AppGroupName 'Desktop Application Group' `
         -Verbose
-    $User = Get-RdsAppGroupUser -TenantName $TenantName -HostPoolName $HostPool -AppGroupName 'Desktop Application Group'
+    $User = Get-RdsAppGroupUser -TenantName $TenantName -HostPoolName $HostPoolName -AppGroupName 'Desktop Application Group'
     foreach ($U in $User) {
-        If(($U)-match $FQDN) {            
+        If(($U)-match $TenantAdmin) {            
             Write-Host "User " -NoNewline; `
-            Write-Host $FQDN -ForegroundColor Red -NoNewline; `
+            Write-Host $TenantAdmin -ForegroundColor Red -NoNewline; `
             Write-Host " is already present in the 'Desktop Application Group'" -NoNewline;   
         }
         Else {
-            write "Adding User $FQDN"
+            write "Adding User $TenantAdmin"
             Add-RdsAppGroupUser `
                 -TenantName $TenantName `
-                -HostPoolName $HostPool `
-                -UserPrincipalName $FQDN `
+                -HostPoolName $HostPoolName `
+                -UserPrincipalName $TenantAdmin `
                 -AppGroupName 'Desktop Application Group'  
         }
         
@@ -351,22 +356,22 @@ Process {
     #######################################
     New-RdsAppGroup `
         -TenantName $TenantName `
-        -HostPoolName $HostPool `
+        -HostPoolName $HostPoolName `
         -Name $FirstAppGroupName `
         -ResourceType RemoteApp `
         -Verbose
     Wait-Event -Timeout 5
     Add-RdsAppGroupUser `
         -TenantName $TenantName `
-        -HostPoolName $HostPool `
-        -UserPrincipalName $FQDN `
+        -HostPoolName $HostPoolName `
+        -UserPrincipalName $TenantAdmin `
         -AppGroupName $FirstAppGroupName  
 }
 
 End {   
     $AppGroup = Get-RdsAppGroup `
         -TenantName $TenantName `
-        -HostPoolName $HostPool `
+        -HostPoolName $HostPoolName `
         -ErrorAction SilentlyContinue
     $Names = $AppGroup.AppgroupName    
     foreach ($Name in $Names) {
@@ -388,10 +393,10 @@ Function New-AzureWVDApps {
  .Description
     Take Apps installed on the Session Host Servers & map them to your Start Menu
          
- .Parameter WVDTenantName
+ .Parameter TenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter WVDHostPoolName
+ .Parameter HostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
 .Parameter RemoteApps    
@@ -400,19 +405,22 @@ Function New-AzureWVDApps {
  .Example    
      # Map Windows Virtual Desktop Apps to your Start Menu
     New-AzureWVDApps `        
-        -WVDTenantName MSAA-Tenant `        
-        -WVDHostPoolName MSAA-HostPool `
+        -TenantName MSAA-Tenant `        
+        -HostPoolName MSAA-HostPool `
         -RemoteApps $RemoteApps
 
 #>
 [Cmdletbinding()]
 Param (    
     [Parameter(Mandatory=$true)]
+        [string]$TenantAdmin,
+    [Parameter(Mandatory=$true)]
         [string]$TenantName,    
     [Parameter(Mandatory=$true)]
         [string]$HostPoolName,
     [Parameter(Mandatory=$true)]
         [string]$RemoteApps
+    
 )
 
 Begin {
@@ -451,8 +459,11 @@ Begin {
     IF(($RDSContext) -eq $null) {
         Write-Host -ForegroundColor Cyan -BackgroundColor Black "Beginning RDS Authentication"
         Wait-Event -Timeout 2
-        Add-RdsAccount `
-            -DeploymentUrl “https://rdbroker.wvd.microsoft.com”
+        $creds = Get-Credential `
+            -UserName $TenantAdmin `
+            -Message "Enter Password for WVD Tenant Credentials"
+        Add-RdsAccount "https://rdbroker.wvd.microsoft.com" `
+            -Credential $creds
         Set-RdsContext `
             -TenantGroupName 'Default Tenant Group'
     }
@@ -519,25 +530,28 @@ Function Remove-AzureWVD {
         Host Pools
         Tenant
          
- .Parameter WVDTenantName
+ .Parameter TenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter WVDHostPoolName
+ .Parameter HostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
  .Example    
      # Clean up WVD
     Remove-AzureWVD `        
-        -WVDTenantName MSAA-Tenant `        
-        -WVDHostPoolName MSAA-HostPool
+        -TenantName MSAA-Tenant `        
+        -HostPoolName MSAA-HostPool
 
 #>
 [Cmdletbinding()]
 Param (    
     [Parameter(Mandatory=$true)]
+        [string]$TenantAdmin,
+    [Parameter(Mandatory=$true)]
         [string]$TenantName,    
     [Parameter(Mandatory=$true)]
         [string]$HostPoolName
+    
 )
 
 Begin {
@@ -576,8 +590,11 @@ Begin {
     IF(($RDSContext) -eq $null) {
         Write-Host -ForegroundColor Cyan -BackgroundColor Black "Beginning RDS Authentication"
         Wait-Event -Timeout 2
-        Add-RdsAccount `
-            -DeploymentUrl “https://rdbroker.wvd.microsoft.com”
+        $creds = Get-Credential `
+            -UserName $TenantName `
+            -Message "Enter Password for WVD Tenant Credentials"
+        Add-RdsAccount "https://rdbroker.wvd.microsoft.com" `
+            -Credential $creds
         Set-RdsContext `
             -TenantGroupName 'Default Tenant Group'
     }
@@ -667,7 +684,7 @@ Function Set-AzureWVDLBType {
  .Parameter TenantName
     Name of the Windows Virtual Desktop Tenant
 
- .Parameter HostPool
+ .Parameter HostPoolName
     Name of the Windows Virtual Desktop Host Pool
 
  .Parameter LoadBalancerType
@@ -680,7 +697,7 @@ Function Set-AzureWVDLBType {
     # Change WVD Load Balancing Config
     Set-AzureWVDLoadBalancing  `
         -TenantName $TenantName `
-        -HostPool $HostPool `
+        -HostPoolName $HostPoolName `
         -LoadBalancerType Depth `
         -MaxSessionLimit 10
 
@@ -689,14 +706,17 @@ Function Set-AzureWVDLBType {
 [Cmdletbinding()]
 Param (    
     [Parameter(Mandatory=$true)]
+        [string]$TenantAdmin,
+    [Parameter(Mandatory=$true)]
         [string]$TenantName,    
     [Parameter(Mandatory=$true)]
-        [string]$HostPool,
+        [string]$HostPoolName,
      [Parameter(Mandatory=$true)]
         [validateset('Breadth','Depth')]
         [string]$LoadBalancerType,
      [Parameter(Mandatory=$true)]
         [int]$MaxSessionLimit
+    
 )
 
 Begin {
@@ -734,8 +754,11 @@ Begin {
     IF(($RDSContext) -eq $null) {
         Write-Host -ForegroundColor Cyan -BackgroundColor Black "Beginning RDS Authentication"
         Wait-Event -Timeout 2
-        Add-RdsAccount `
-            -DeploymentUrl “https://rdbroker.wvd.microsoft.com”
+        $creds = Get-Credential `
+            -UserName $TenantAdmin `
+            -Message "Enter Password for WVD Tenant Credentials"
+        Add-RdsAccount "https://rdbroker.wvd.microsoft.com" `
+            -Credential $creds
         Set-RdsContext `
             -TenantGroupName 'Default Tenant Group'
     }
@@ -782,7 +805,7 @@ Process {
         Wait-Event -Timeout 1
         Set-RdsHostPool `
             -TenantName $TenantName `
-            -Name $HostPool `
+            -Name $HostPoolName `
             -DepthFirstLoadBalancer `
             -MaxSessionLimit $MaxSessionLimit
     }
@@ -794,7 +817,7 @@ Process {
         Wait-Event -Timeout 1
         Set-RdsHostPool `
             -TenantName $TenantName `
-            -Name $HostPool `
+            -Name $HostPoolName `
             -BreadthFirstLoadBalancer `
             -MaxSessionLimit $MaxSessionLimit
     }
@@ -804,7 +827,7 @@ Process {
 End {    
     ""
     Write-Host "Host Pool " -NoNewline; `
-    Write-Host $HostPool -ForegroundColor Green -NoNewline; `
+    Write-Host $HostPoolName -ForegroundColor Green -NoNewline; `
     Write-Host " has been updated" -NoNewline;  
     ""
     Write-Host "Max Session count is now - " -NoNewline;  
