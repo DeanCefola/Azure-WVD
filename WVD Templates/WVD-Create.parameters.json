@@ -1,0 +1,93 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "rdshImageSource": {
+      "value": "Gallery"
+    },
+    "vmImageVhdUri": {
+      "value": ""
+    },
+    "rdshGalleryImageSKU": {
+      "value": "2016-Datacenter"
+    },
+    "rdshCustomImageSourceName": {
+      "value": ""
+    },
+    "rdshCustomImageSourceResourceGroup": {
+      "value": ""
+    },
+    "rdshNamePrefix": {
+      "value": ""
+    },
+    "rdshNumberOfInstances": {
+      "value": 8
+    },
+    "rdshVMDiskType": {
+      "value": "SSD"
+    },
+    "rdshVmSize": {
+      "value": ""
+    },
+    "enableAcceleratedNetworking": {
+      "value": false
+    },
+    "rdshUseManagedDisks": {
+      "value": true
+    },
+    "storageAccountResourceGroupName": {
+      "value": ""
+    },
+    "domainToJoin": {
+      "value": ""
+    },
+    "existingDomainUPN": {
+      "value": ""
+    },
+    "existingDomainPassword": {
+      "value": null
+    },
+    "existingVnetName": {
+      "value": ""
+    },
+    "existingSubnetName": {
+      "value": ""
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": ""
+    },
+    "existingTenantGroupName": {
+      "value": "Default Tenant Group"
+    },
+    "existingTenantName": {
+      "value": ""
+    },
+    "hostPoolName": {
+      "value": ""
+    },
+    "enablePersistentDesktop": {
+      "value": false
+    },
+    "defaultDesktopUsers": {
+      "value": ""
+    },
+    "tenantAdminUpnOrApplicationId": {
+      "value": ""
+    },
+    "tenantAdminPassword": {
+      "value": null
+    },
+    "isServicePrincipal": {
+      "value": false
+    },
+    "aadTenantId": {
+      "value": ""
+    },
+    "ouPath": {
+      "value": ""
+    },
+    "location": {
+      "value": "eastus"
+    }
+  }
+}
