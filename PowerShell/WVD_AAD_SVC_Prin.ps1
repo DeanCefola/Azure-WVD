@@ -24,10 +24,11 @@ $svcPrincipal = New-AzureADApplication `
     -DisplayName "Windows Virtual Desktop Svc Principal"
 $svcPrincipalCreds = New-AzureADApplicationPasswordCredential `
     -ObjectId $svcPrincipal.ObjectId
-New-RdsRoleAssignment `
-    -RoleDefinitionName "RDS Owner" `
-    -ApplicationId $svcPrincipal.AppId `
-    -TenantName $myTenantName
+
+
+#################################
+#     Connect to WVD Service    #
+#################################
 $creds = New-Object System.Management.Automation.PSCredential($svcPrincipal.AppId, `
     (ConvertTo-SecureString $svcPrincipalCreds.Value -AsPlainText -Force))
 Add-RdsAccount `
@@ -35,6 +36,15 @@ Add-RdsAccount `
     -Credential $creds `
     -ServicePrincipal `
     -AadTenantId $aadContext.TenantId.Guid
+
+
+#########################################
+#     Create New WVD Role Assignment    #
+#########################################
+New-RdsRoleAssignment `
+    -RoleDefinitionName "RDS Owner" `
+    -ApplicationId $svcPrincipal.AppId `
+    -TenantName $myTenantName
 
 
 ################################
