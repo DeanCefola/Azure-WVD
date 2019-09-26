@@ -53,9 +53,9 @@
 
 ###########################
 #    General Variables    #
-###########################
-$AADTenantID = 'ebbeb61f-5adf-415b-a5c7-cc59d78d03f5'
-$SubscriptionID = '99bb8770-986e-4337-a553-42296fcfea07'
+###########################                 
+$AADTenantID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+$SubscriptionID = 'yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'
 $WVDTenantName = 'MSAA-Tenant'
 $WVDTenantGroup = 'Default Tenant Group'
 $WVDHostPoolName = 'MSAA-HostPool'
