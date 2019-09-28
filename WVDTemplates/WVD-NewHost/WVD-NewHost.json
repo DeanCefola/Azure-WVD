@@ -173,10 +173,10 @@
               }
             },
             "imageReference": {
-              "publisher": "[variables('VM_IMAGES').publisher]",
-              "offer": "[variables('VM_Images').offer]",
-              "sku": "[variables('VM_Images').sku]",
-              "version": "[variables('VM_Images').version]"
+              "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
+              "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
+              "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
+              "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
             }
           },
           "networkProfile": {
