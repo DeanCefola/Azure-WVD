@@ -1,0 +1,45 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Prefix": {
+      "value": "<VM NAME PREFIX i.e. wvd>"
+    },
+    "AdminUserName": {
+      "value": "DOMAIN USER NAME"
+    },
+    "AdminPassword": {
+      "value": "<DOMAIN USER PASSWORD>"
+    },
+    "DomainFQDN": {
+      "value": "FULL QUALIFIED DOMAIN i.e. MSAzureAcademy.com"
+    },
+    "Instance": {
+      "value": 2
+    },
+    "OperatingSystem": {
+      "value": "VM OS"
+    },
+    "VMSize": {
+      "value": "<VM SIZE>"
+    },
+    "ProfilePath": {
+      "value": "<PATH TO PROFILE STORAGE i.e. \\\\Contoso.com\\Profiles>"
+    },
+    "RegistrationToken": {
+      "value": "<GENERATE WVD HOSTPOOL REGESTRATION TOKEN>"
+    },
+    "subnetName": {
+      "value": "<SUBNET NAME>"
+    },
+    "virtualNetworkId": {
+      "value": "/subscriptions/<SUBSCRIPTION ID>/resourceGroups/<RESOURCE GROUP NAME>/providers/Microsoft.Network/virtualNetworks/<VIRTUAL NETWORK NAME>"
+    },
+    "autoShutdownTime": {
+      "value": "23:00"
+    },
+    "autoShutdownTimeZone": {
+      "value": "Eastern Standard Time"
+    }
+  }
+}
