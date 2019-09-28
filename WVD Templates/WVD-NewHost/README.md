@@ -32,7 +32,6 @@ This template will
     <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.png"/>
 </a>
 
-https://deployAzure.net/deploybutton.png
 ----
 ----
 
