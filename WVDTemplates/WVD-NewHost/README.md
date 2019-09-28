@@ -1,4 +1,4 @@
-﻿# Windows Virtual Desktop Automated Deployment
+# Windows Virtual Desktop Automated Deployment
 This template will
 - Allow you to select either a Windows Server or Windows Client VM for deployment
 - Auto join your Active Directory Domain
@@ -25,10 +25,10 @@ This template will
 
 ----
 ----
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDeanCefola%2FAzure-WVD%2Fmaster%2FWVDTemplates%2FWVD-NewHost%2FWVD-NewHost.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2DeanCefola%2Azure-WVD%2master%2WVDTemplates%2WVD-NewHost%2azuredeploy.json" target="_blank">
     <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FDeanCefola%2FAzure-WVD%2Fmaster%2FWVDTemplates%2FWVD-NewHost%2FWVD-NewHost.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2DeanCefola%2Azure-WVD%2master%2WVDTemplates%2WVD-NewHost%2azuredeploy.json" target="_blank">
     <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.png"/>
 </a>
 
