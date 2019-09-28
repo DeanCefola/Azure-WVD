@@ -1,45 +1,45 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
-      "value": "wvd"
+      "value": "THIS IS A PREFIX FOR THE VM NAME i.e. WVD  --  WARNING  --  DO NOT HAVE A TOTAL VM NAME LONGER THAN 15 CHARECTORS"
     },
     "AdminUserName": {
-      "value": "lntad"
+      "value": "<LOCAL ADMIN USER NAME>"
     },
-    "AdminPassword": {
-      "value": "qwe123QWE!@#"
+      "AdminPassword": {
+      "value": "<LOCAL ADMIN PASSWORD>"
     },
     "DomainFQDN": {
-      "value": "MSAzureAcademy.com"
+      "value": "<FULL QUALIFIED DOMAIN NAME i.e. MSAzureAcademy.com>"
     },
     "Instance": {
-      "value": 2
+      "value": "<SELECT NUMBER OF VMs TO BUILD,  -- WARNING  -- INTIGERS ONLY i.e. 1 - 99>"
     },
     "OperatingSystem": {
-      "value": "Server"
+      "value": "<SELECT OS TYPE>"
     },
     "VMSize": {
-      "value": "Medium"
+      "value": "<SELECT VM SIZE>"
     },
     "ProfilePath": {
-      "value": "\\\\VM-DC-1.MSAzureAcademy.com\\WVDProfiles"
+      "value": "<ADD PATH TO CENTRAL STORAGE FOR WVD PROFILES i.e. \\Contoso.com\CorpShare\WVDProfiles>"
     },
     "RegistrationToken": {
-      "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkFDRkQ1MTcyMkM1MTE5MDI1OTFEQUY3MUY2QzY4MzZDRDI0RjM4QTgiLCJ0eXAiOiJKV1QifQ.eyJSZWdpc3RyYXRpb25JZCI6ImZhMWQxODMwLTVmMjktNGM1Yi04ODBiLTY4NmQ4YmE0ZWJlZCIsIkJyb2tlclVyaSI6Imh0dHBzOi8vcmRicm9rZXIud3ZkLm1pY3Jvc29mdC5jb20vIiwiRGlhZ25vc3RpY3NVcmkiOiJodHRwczovL3JkZGlhZ25vc3RpY3Mud3ZkLm1pY3Jvc29mdC5jb20vIiwiRW5kcG9pbnRQb29sSWQiOiJkNzVjNzVkMC04Y2I4LTRmZmEtZTI4Mi0wOGQ3NDBiYWFlOWUiLCJuYmYiOjE1Njk1NjE0MDksImV4cCI6MTU2OTczNDIwOCwiaXNzIjoiUkRJbmZyYVRva2VuTWFuYWdlciIsImF1ZCI6IlJEbWkifQ.a4a4Q6Jd1rd3sjvjxYhA3_96VZaW41mKVXmHo5ulUf69Wl0L6Qx4ay0sVFWNCwVa0MwrZDML1Y1oW8r9dZyBcoCvWvZiHoBWiV1OjHluLyQysaG_W4D86Uu4Fr4n70m2K6JneJ2NItm97bHr4sMHjAmbgZv0vMMcmHOYAD99XmSp0FU3V-XTUeQACHhU-SDMoFD-dCB0zQ6DjYmF0PDyWQnLdqhT66fTY7tEujcQdgFSk7ne4SDFEYOz6ADEYgJ0g7tr9eBAS8PJz084nPMKS0TrI3wFeJXwz7korelm_b-7QEU7DxMv3ThiwfQrpo5aMMx_mQ3q5qVlDOWhcbBY3w"
+      "value": "<GENERATE THIS TOKEN FROM THE WVD WEBUI or POWERSHELL AND INSERT HERE>"
     },
     "subnetName": {
-      "value": "CoreSubnet"
+      "value": "<SUBNET NAME>"
     },
     "virtualNetworkId": {
-      "value": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-VNet-rg/providers/Microsoft.Network/virtualNetworks/AA-WVD-vNET"
+      "value": "/subscriptions/<SUBSCRIPTION ID>/resourceGroups/<RGNAME>/providers/Microsoft.Network/virtualNetworks/<VIRTUAL NETWORK NAME>"
     },
     "autoShutdownTime": {
-      "value": "23:00"
+      "value": "<ENTER VM SHUTDOWN TIME in 24 HOUR i.e. 23:00>"
     },
     "autoShutdownTimeZone": {
-      "value": "Eastern Standard Time"
+      "value": "<ENTER YOUR TIME ZONE NAME i.e. Eastern Standard Time>"
     }
   }
 }
