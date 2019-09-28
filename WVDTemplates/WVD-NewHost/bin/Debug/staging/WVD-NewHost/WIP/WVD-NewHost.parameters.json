@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
-      "value": "wvd"
+      "value": "vdi"
     },
     "AdminUserName": {
       "value": "lntad"

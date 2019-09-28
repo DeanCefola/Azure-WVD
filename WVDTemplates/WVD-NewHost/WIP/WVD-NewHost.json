@@ -88,11 +88,7 @@
     "vnetId": "[parameters('virtualNetworkId')]",
     "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
     "JoinUser": "[concat(parameters('adminUsername'),'@',parameters('DomainFQDN'))]",
-    "UriFileNamePieces": "[split(variables('fileUris'), '/')]",
-    "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
-    "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
-    "firstFileName": "[variables('firstFileNameBreakString')[0]]",    
-    "arguments": "[concat('-ProfilePath', parameters('ProfilePath'),'-RegistrationToken', parameters('RegistrationToken') )]"
+    "arguments": "[concat('-ProfilePath', parameters('ProfilePath'),'-RegistrationToken', parameters('RegistrationToken'))]"
   },
   "resources": [
     {
@@ -236,6 +232,7 @@
       ]
     },
     {
+      "condition": false,
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(variables('VMName'),copyIndex(),'/CustomScriptExtension')]",
       "apiVersion": "2015-06-15",
@@ -247,13 +244,15 @@
       "properties": {
         "publisher": "Microsoft.Compute",
         "type": "CustomScriptExtension",
-        "typeHandlerVersion": "1.9",
+        "typeHandlerVersion": "1.8",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "fileUris": "[split(variables('fileUris'), ' ')]"
+          "fileUris": [
+            "[variables('fileUris')]"
+          ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' ', variables('arguments'))]"
+          "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File', 'New-WVDSessionHost.ps1', '-ProfilePath', parameters('ProfilePath'),'-RegistrationToken', parameters('RegistrationToken'))]"
         }
       },
       "dependsOn": [
@@ -288,7 +287,7 @@
         }
       },
       "dependsOn": [
-        "Script-Copy"
+        "JoinDomain-Copy"
       ]
     }
   ],

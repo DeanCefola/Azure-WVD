@@ -23,12 +23,14 @@
   <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
   <!-- vertag<:>end -->
   <ItemGroup>
-    <Content Include="WVD-NewHost.parameters.json" />
+    <Content Include="WIP\WVD-NewHost.parameters.json" />
+    <Content Include="azuredeploy.json" />
+    <Content Include="azuredeploy.parameters.json" />
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
-    <Content Include="WVD-NewHost.json" />
+    <Content Include="WIP\WVD-NewHost.json" />
     <Content Include="README.md" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
