@@ -6,7 +6,14 @@
 # Date                         Version      Changes
 #------------------------------------------------------------------------
 # 09/15/2019                     1.0        Intial Version
-#
+# 09/16/2019                     2.0        Add FSLogix installer
+# 09/16/2019                     2.1        Add FSLogix Reg Keys 
+# 09/16/2019                     2.2        Add Input Parameters 
+# 09/16/2019                     2.3        Add TLS 1.2 settings
+# 09/17/2019                     3.0        Chang download locations to dynamic
+# 09/17/2019                     3.1        Add code to disable IESEC for admins
+# 09/20/2019                     3.2        Add code to discover OS (Server / Client)
+# 09/20/2019                     4.0        Add code for servers to add RDS Host role
 #
 #*********************************************************************************
 #
@@ -65,7 +72,36 @@ Expand-Archive `
     -Force `
     -Verbose
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$AdminsKey = "SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
+$UsersKey = "SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}"
+$BaseKey = [Microsoft.Win32.RegistryKey]::OpenBaseKey("LocalMachine","Default")
+$SubKey = $BaseKey.OpenSubkey($AdminsKey,$true)
+$SubKey.SetValue("IsInstalled",0,[Microsoft.Win32.RegistryValueKind]::DWORD)
+$SubKey = $BaseKey.OpenSubKey($UsersKey,$true)
+$SubKey.SetValue("IsInstalled",0,[Microsoft.Win32.RegistryValueKind]::DWORD)
 cd $Localpath 
+
+
+##############################
+#    OS Specific Settings    #
+##############################
+If(((Get-CimInstance win32_operatingsystem).Name) -match 'server') {
+    "Windows Server OS Detected"
+    If(((Get-WindowsFeature -Name RDS-RD-Server).installstate) -eq 'Installed') {
+        "Session Host Role is already installed"
+    }
+    Else {
+        "Installing Session Host Role"
+        Install-WindowsFeature `
+            -Name RDS-RD-Server `
+            -Verbose `
+            -LogPath "$Localpath\RdsServerRoleInstall.txt"
+    }
+}
+Else {
+    "Windows Client OS Detected"
+
+}
 
 
 ################################
@@ -150,4 +186,10 @@ New-ItemProperty `
     -Value $ProfilePath
 Pop-Location
  
+
+#############
+#    END    #
+#############
+Restart-Computer -Force
+
 
