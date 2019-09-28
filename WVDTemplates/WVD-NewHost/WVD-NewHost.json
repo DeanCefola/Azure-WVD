@@ -94,7 +94,7 @@
     {
       "type": "Microsoft.Compute/availabilitySets",
       "name": "[concat(parameters('Prefix'),'-AVSet')]",
-      "apiVersion": "2018-02-01-preview",
+      "apiVersion": " 2019-07-01",
       "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "WVD-AVSet"
