@@ -88,7 +88,11 @@
     "vnetId": "[parameters('virtualNetworkId')]",
     "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
     "JoinUser": "[concat(parameters('adminUsername'),'@',parameters('DomainFQDN'))]",
-    "arguments": "[concat('-ProfilePath', parameters('ProfilePath'), 'RegistrationToken', parameters('RegistrationToken'))]"
+    "UriFileNamePieces": "[split(variables('fileUris'), '/')]",
+    "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
+    "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
+    "firstFileName": "[variables('firstFileNameBreakString')[0]]",    
+    "arguments": "[concat('-ProfilePath', parameters('ProfilePath'),'-RegistrationToken', parameters('RegistrationToken') )]"
   },
   "resources": [
     {
@@ -165,41 +169,41 @@
         "hardwareProfile": {
           "vmSize": "[variables('VM_SIZES')[parameters('VMSize')].WVDsize]"
         },
-          "storageProfile": {
-            "osDisk": {
-              "createOption": "FromImage",
-              "managedDisk": {
-                "storageAccountType": "StandardSSD_LRS"
-              }
-            },
-            "imageReference": {
-              "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
-              "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
-              "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
-              "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
             }
           },
-          "networkProfile": {
-            "networkInterfaces": [
-              {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('VMName'),copyIndex(),'-nic'))]"
-              }
-            ]
-          },
-          "osProfile": {
-            "computerName": "[concat(variables('VMName'),copyIndex())]",
-            "adminUsername": "[parameters('AdminUserName')]",
-            "adminPassword": "[parameters('AdminPassword')]",
-            "windowsConfiguration": {
-              "enableAutomaticUpdates": true,
-              "provisionVmAgent": true
-            }
+          "imageReference": {
+            "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
+            "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
+            "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
+            "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
           }
         },
-        "dependsOn": [
-          "WVDNic-Copy"
-        ]
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('VMName'),copyIndex(),'-nic'))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('VMName'),copyIndex())]",
+          "adminUsername": "[parameters('AdminUserName')]",
+          "adminPassword": "[parameters('AdminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true,
+            "provisionVmAgent": true
+          }
+        }
       },
+      "dependsOn": [
+        "WVDNic-Copy"
+      ]
+    },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(variables('VMName'),copyIndex(), '/joinDomain')]",
@@ -232,31 +236,24 @@
       ]
     },
     {
-      "type": "Microsoft.Resources/deployments",
-      "name": "[concat(variables('VMName'),copyIndex(),'-Microsoft.CustomScriptExtension')]",
-      "apiVersion": "2015-01-01",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('VMName'),copyIndex(),'/CustomScriptExtension')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
       "copy": {
         "name": "Script-Copy",
         "count": "[parameters('Instance')]"
       },
       "properties": {
-        "mode": "incremental",
-        "templateLink": {
-          "uri": "https://gallery.azure.com/artifact/20161101/Microsoft.CustomScriptExtension-arm.2.0.56/Artifacts/MainTemplate.json"
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[split(variables('fileUris'), ' ')]"
         },
-        "parameters": {
-          "vmName": {
-            "value": "[concat(variables('VMName'),copyIndex())]"
-          },
-          "location": {
-            "value": "[resourceGroup().location]"
-          },
-          "fileUris": {
-            "value": "[variables('fileUris')]"
-          },
-          "arguments": {
-            "value": "[variables('arguments')]"
-          }
+        "protectedSettings": {
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' ', variables('arguments'))]"
         }
       },
       "dependsOn": [
