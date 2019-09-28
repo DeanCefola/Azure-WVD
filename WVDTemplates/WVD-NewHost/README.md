@@ -1,5 +1,8 @@
+
 # Windows Virtual Desktop Automated Deployment
-This template will
+
+**This template will**
+
 - Allow you to select either a Windows Server or Windows Client VM for deployment
 - Auto join your Active Directory Domain
 - Download the latest WVD Installer Agent, Bootloader and FSLogix software
@@ -9,14 +12,16 @@ This template will
 ----
 ----
 
-# Requirements:
+# Requirements
 
 **Permissions:**
+
 - Azure Active Directory Global Administrator
 - Active Directory Administrator
 - Account to join AD Domain (optional)
 
 **Infrastructure:**
+
 - Create WVD Tenant
 - Create WVD HostPool
 - Create Active Directory domain for the new VM(s) to join
@@ -25,10 +30,10 @@ This template will
 
 ----
 ----
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2DeanCefola%2Azure-WVD%2master%2WVDTemplates%2WVD-NewHost%2azuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDeanCefola%2FAzure-WVD%2Fmaster%2FWVDTemplates%2FWVD-NewHost%2Fazuredeploy.json" target="_blank">
     <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2DeanCefola%2Azure-WVD%2master%2WVDTemplates%2WVD-NewHost%2azuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FDeanCefola%2FAzure-WVD%2Fmaster%2FWVDTemplates%2FWVD-NewHost%2Fazuredeploy.json" target="_blank">
     <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.png"/>
 </a>
 
@@ -36,9 +41,10 @@ This template will
 ----
 
 # **The Azure Academy**
-## Watch the Windows Virtual Desktop Series
-[![](https://tr1.cbsistatic.com/hub/i/2018/12/12/b685a2ae-3772-4214-9ba5-4205842dd50b/microsoft-wvdarchitecture.png)](https://www.youtube.com/playlist?list=PL-V4YVm6AmwXGvQ46W8mHkpvm6S5IIitK)
 
+## Watch the Windows Virtual Desktop Series
+
+[![](https://tr1.cbsistatic.com/hub/i/2018/12/12/b685a2ae-3772-4214-9ba5-4205842dd50b/microsoft-wvdarchitecture.png)](https://www.youtube.com/playlist?list=PL-V4YVm6AmwXGvQ46W8mHkpvm6S5IIitK)
 
 If you are new to Azure virtual machines, see:
 
