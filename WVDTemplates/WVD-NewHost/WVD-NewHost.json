@@ -93,7 +93,7 @@
   "resources": [
     {
       "type": "Microsoft.Compute/availabilitySets",
-      "name": "WVD-AVSet",
+      "name": "[concat(parameters('Prefix'),'-AVSet')]",
       "apiVersion": "2018-02-01-preview",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -101,7 +101,7 @@
       },
       "copy": {
         "name": "AVSet-Copy",
-        "count": "[parameters('Instance')]"
+        "count": 1
       },
       "sku": {
         "name": "Aligned"
@@ -159,44 +159,47 @@
         "displayName": "WVD-VM"
       },
       "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', concat(parameters('Prefix'),'-AVSet'))]"
+        },
         "hardwareProfile": {
           "vmSize": "[variables('VM_SIZES')[parameters('VMSize')].WVDsize]"
         },
-        "storageProfile": {
-          "osDisk": {
-            "createOption": "FromImage",
-            "managedDisk": {
-              "storageAccountType": "StandardSSD_LRS"
+          "storageProfile": {
+            "osDisk": {
+              "createOption": "FromImage",
+              "managedDisk": {
+                "storageAccountType": "StandardSSD_LRS"
+              }
+            },
+            "imageReference": {
+              "publisher": "[variables('VM_IMAGES').publisher]",
+              "offer": "[variables('VM_Images').offer]",
+              "sku": "[variables('VM_Images').sku]",
+              "version": "[variables('VM_Images').version]"
             }
           },
-          "imageReference": {
-            "publisher": "[variables('VM_IMAGES').publisher]",
-            "offer": "[variables('VM_Images').offer]",
-            "sku": "[variables('VM_Images').sku]",
-            "version": "[variables('VM_Images').version]"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('VMName'),copyIndex(),'-nic'))]"
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('VMName'),copyIndex(),'-nic'))]"
+              }
+            ]
+          },
+          "osProfile": {
+            "computerName": "[concat(variables('VMName'),copyIndex())]",
+            "adminUsername": "[parameters('AdminUserName')]",
+            "adminPassword": "[parameters('AdminPassword')]",
+            "windowsConfiguration": {
+              "enableAutomaticUpdates": true,
+              "provisionVmAgent": true
             }
-          ]
-        },
-        "osProfile": {
-          "computerName": "[concat(variables('VMName'),copyIndex())]",
-          "adminUsername": "[parameters('AdminUserName')]",
-          "adminPassword": "[parameters('AdminPassword')]",
-          "windowsConfiguration": {
-            "enableAutomaticUpdates": true,
-            "provisionVmAgent": true
           }
-        }
+        },
+        "dependsOn": [
+          "WVDNic-Copy"
+        ]
       },
-      "dependsOn": [
-        "WVDNic-Copy"
-      ]
-    },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(variables('VMName'),copyIndex(), '/joinDomain')]",
