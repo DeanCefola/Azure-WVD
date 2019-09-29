@@ -11,6 +11,23 @@
     "DomainFQDN": {
       "type": "string"
     },
+    "OperatingSystem": {
+      "type": "string",
+      "defaultValue": "Client",
+      "allowedValues": [
+        "Server",
+        "Client"
+      ]
+    },
+    "VMSize": {
+      "type": "string",
+      "defaultValue": "Small",
+      "allowedValues": [
+        "Small",
+        "Medium",
+        "Large"
+      ]
+    },
     "subnetName": {
       "type": "string"
     },
@@ -21,7 +38,32 @@
       "type": "string"
     }
   },
-  "variables": {
+  "variables": {    
+    "VM_Images": {
+      "Server": {
+        "publisher": "MicrosoftWindowsServer",
+        "offer": "WindowsServer",
+        "sku": "2019-Datacenter-smalldisk",
+        "version": "latest"
+      },
+      "Client": {
+        "publisher": "microsoftwindowsdesktop",
+        "offer": "office-365",
+        "sku": "1903-evd-o365pp",
+        "version": "latest"
+      }
+    },
+    "VM_SIZES": {
+      "Small": {
+        "WVDsize": "Standard_B2ms"
+      },
+      "Medium": {
+        "WVDsize": "Standard_DS3_v2"
+      },
+      "Large": {
+        "WVDsize": "Standard_DS14_v2"
+      }
+    },
     "vnetId": "[parameters('virtualNetworkId')]",
     "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
     "JoinUser": "[concat(parameters('adminUsername'),'@',parameters('DomainFQDN'))]"
@@ -70,10 +112,10 @@
             }
           },
           "imageReference": {
-            "publisher": "microsoftwindowsdesktop",
-            "offer": "office-365",
-            "sku": "1903-evd-o365pp",
-            "version": "latest"
+            "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
+            "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
+            "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
+            "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
           }
         },
         "networkProfile": {

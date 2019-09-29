@@ -1,24 +1,25 @@
-{
+﻿{
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
   "parameters": {
-    "AdminUserName": {
-      "value": "DOMAIN USER NAME"
-    },
-    "AdminPassword": {
-      "value": "<DOMAIN USER PASSWORD>"
-    },
-    "DomainFQDN": {
-      "value": "FULL QUALIFIED DOMAIN i.e. MSAzureAcademy.com"
-    },
-"subnetName": {
-      "value": "<SUBNET NAME>"
+
+    "subnetName": {
+      "value": "CoreSubnet"
     },
     "virtualNetworkId": {
-      "value": "/subscriptions/<SUBSCRIPTION ID>/resourceGroups/<RESOURCE GROUP NAME>/providers/Microsoft.Network/virtualNetworks/<VIRTUAL NETWORK NAME>"
+      "value": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-VNet-rg/providers/Microsoft.Network/virtualNetworks/AA-WVD-vNET"
     },
     "virtualMachineName": {
-      "value": "<ENTER VM NAME>"
-    }
+      "value": "testServer"
+    },
+    "adminUsername": {
+      "value": "lntad"
+    },
+    "adminPassword": {
+      "value": "qwe123QWE!@#"
+    },
+    "DomainFQDN": {
+      "value": "MSAzureAcademy.com"
+    }    
   }
 }
