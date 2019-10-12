@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subnetName": {
+      "value": "CoreSubnet"
+    },
+    "virtualNetworkId": {
+      "value": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-VNet-rg/providers/Microsoft.Network/virtualNetworks/AA-WVD-vNET"
+    },
+    "virtualMachineName": {
+      "value": "WVD-001"
+    },
+    "adminUsername": {
+      "value": "lntad"
+    },
+    "DomainFQDN": {
+      "value": "MSAzureAcademy.com"
+    },
+    "RegistrationToken": {
+      "value": "eyJhbGciOiJasdSUzI1NiIsIM"
+    },
+    "ProfilePath": {
+      "value": "\\\\MSAzureAcademy.com\\CorpShares\\WVDProfile"
+    }
+  }
+}

@@ -3,36 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
-      "value": "WVD-10"
+      "value": "Multi-10"
     },
     "AdminUserName": {
       "value": "lntad"
-    },
-    "AdminPassword": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-SharedSvcs-rg/providers/Microsoft.KeyVault/vaults/AA-WVD-sharedsvcs-kv"
-        },
-        "secretName": "DefaultPassword"
-      }
-    },
+    },    
     "DomainFQDN": {
       "value": "MSAzureAcademy.com"
     },
     "Instance": {
       "value": 2
-    },
-    "OperatingSystem": {
-      "value": "Client"
-    },
+    },    
     "VMSize": {
       "value": "Small"
-    },
-    "ProfilePath": {
-      "value": "\\\\MSAzureAcademy.com\\CorpShares\\WVDProfile"
-    },
-    "RegistrationToken": {
-      "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkFDRkQ1MToW_WhLCgLai7JWh18owsazjntWmQ"
     },    
     "autoShutdownTime": {
       "value": "23:00"

@@ -23,11 +23,10 @@
     },
     "OperatingSystem": {
       "type": "string",
-      "defaultValue": "Client",
-      "allowedValues": [
-        "Server",
-        "Client"
-      ]
+      "metadata": {
+        "description": "Provide ResourceID of your custom image"
+      }
+     
     },
     "VMSize": {
       "type": "string",
@@ -72,6 +71,12 @@
         "publisher": "microsoftwindowsdesktop",
         "offer": "office-365",
         "sku": "1903-evd-o365pp",
+        "version": "latest"
+      },
+      "Multi": {
+        "publisher": "MicrosoftWindowsDesktop",
+        "offer": "Windows-10",
+        "sku": "19h1-evd",
         "version": "latest"
       }
     },
@@ -165,12 +170,9 @@
             }
           },
           "imageReference": {
-            "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
-            "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
-            "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
-            "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
+            "id": "[parameters('OperatingSystem')]"
           }
-        },
+        },      
         "networkProfile": {
           "networkInterfaces": [
             {
@@ -187,7 +189,7 @@
             "provisionVmAgent": true
           }
         },
-        "licenseType": "[variables('License')[parameters('OperatingSystem')].License]"
+        "licenseType": "Windows_Server"
       },
       "zones": [
         1

@@ -1,15 +1,20 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
-      "value": "wvd"
+      "value": "WVD-10"
     },
     "AdminUserName": {
       "value": "lntad"
     },
     "AdminPassword": {
-      "value": "qwe123QWE!@#"
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-SharedSvcs-rg/providers/Microsoft.KeyVault/vaults/AA-WVD-sharedsvcs-kv"
+        },
+        "secretName": "DefaultPassword"
+      }
     },
     "DomainFQDN": {
       "value": "MSAzureAcademy.com"
@@ -18,28 +23,31 @@
       "value": 2
     },
     "OperatingSystem": {
-      "value": "Server"
+      "value": "Client"
     },
     "VMSize": {
-      "value": "Medium"
+      "value": "Small"
     },
     "ProfilePath": {
-      "value": "\\\\VM-DC-1.MSAzureAcademy.com\\WVDProfiles"
+      "value": "\\\\MSAzureAcademy.com\\CorpShares\\WVDProfile"
     },
     "RegistrationToken": {
-      "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkFDRkQ1MTcyMkM1MTE5MDI1OTFEQUY3MUY2QzY4MzZDRDI0RjM4QTgiLCJ0eXAiOiJKV1QifQ.eyJSZWdpc3RyYXRpb25JZCI6ImZhMWQxODMwLTVmMjktNGM1Yi04ODBiLTY4NmQ4YmE0ZWJlZCIsIkJyb2tlclVyaSI6Imh0dHBzOi8vcmRicm9rZXIud3ZkLm1pY3Jvc29mdC5jb20vIiwiRGlhZ25vc3RpY3NVcmkiOiJodHRwczovL3JkZGlhZ25vc3RpY3Mud3ZkLm1pY3Jvc29mdC5jb20vIiwiRW5kcG9pbnRQb29sSWQiOiJkNzVjNzVkMC04Y2I4LTRmZmEtZTI4Mi0wOGQ3NDBiYWFlOWUiLCJuYmYiOjE1Njk1NjE0MDksImV4cCI6MTU2OTczNDIwOCwiaXNzIjoiUkRJbmZyYVRva2VuTWFuYWdlciIsImF1ZCI6IlJEbWkifQ.a4a4Q6Jd1rd3sjvjxYhA3_96VZaW41mKVXmHo5ulUf69Wl0L6Qx4ay0sVFWNCwVa0MwrZDML1Y1oW8r9dZyBcoCvWvZiHoBWiV1OjHluLyQysaG_W4D86Uu4Fr4n70m2K6JneJ2NItm97bHr4sMHjAmbgZv0vMMcmHOYAD99XmSp0FU3V-XTUeQACHhU-SDMoFD-dCB0zQ6DjYmF0PDyWQnLdqhT66fTY7tEujcQdgFSk7ne4SDFEYOz6ADEYgJ0g7tr9eBAS8PJz084nPMKS0TrI3wFeJXwz7korelm_b-7QEU7DxMv3ThiwfQrpo5aMMx_mQ3q5qVlDOWhcbBY3w"
-    },
-    "subnetName": {
-      "value": "CoreSubnet"
-    },
-    "virtualNetworkId": {
-      "value": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-VNet-rg/providers/Microsoft.Network/virtualNetworks/AA-WVD-vNET"
-    },
+      "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkFDRkQ1MTcyMkM1MTE5MDI1OTFEQUY3MUY2QzY4MzZDRDI0RjM4QTgiLCJ0eXAiOiJKV1QifQ.eyJSZWdpc3RyYXRpb25JZCI6ImIyOTc5ODYzLTcyYzItNDE3Yy1hM2Y1LTM5ZjhjMTNhMTcwMyIsIkJyb2tlclVyaSI6Imh0dHBzOi8vcmRicm9rZXIud3ZkLm1pY3Jvc29mdC5jb20vIiwiRGlhZ25vc3RpY3NVcmkiOiJodHRwczovL3JkZGlhZ25vc3RpY3Mud3ZkLm1pY3Jvc29mdC5jb20vIiwiRW5kcG9pbnRQb29sSWQiOiJjODk5OGE4Zi03YmMxLTQ5NWQtODUxYS0wOGQ3MjE2YjQ5YmQiLCJuYmYiOjE1NzAwMzczMzIsImV4cCI6MTU3NTA3MjAwMCwiaXNzIjoiUkRJbmZyYVRva2VuTWFuYWdlciIsImF1ZCI6IlJEbWkifQ.WdiuLUa4wN34WZXvbINLBAzdQu21sZ87PwRByAPzvjhEjX6rYmB5DmjxNiRLhkx2m4O83WfXutbVF8smjo-7fOXyvqz-hzl4mUUWQN6O9-7ss7fXM_dSDGTtjjpbTQq-A2IAOzQVJ-sO9WCLTIfXU82UEYGNFJKf3DiTA3CATR8P6KvpdCJ_DXiLIRKftfExRALWZFNMkKLCJoFJOhpTMIg5rgg5OIlad42cA7S6qiHlszEM_6Tpa9j4OxZKoY5ttabAr2cxOJJPPjGGJt69LnS5Wc-RLxaVQcxQUGR54tg61loLQq9JjdzGRPoW_WhLCgLai7JWh18owsazjntWmQ"
+    },    
     "autoShutdownTime": {
       "value": "23:00"
     },
     "autoShutdownTimeZone": {
       "value": "Eastern Standard Time"
+    },
+    "VnetRgName": {
+      "value": "AA-WVD-VNet-rg"
+    },
+    "VnetName": {
+      "value": "AA-WVD-vNET"
+    },
+    "SubnetName": {
+      "value": "CoreSubnet"
     }
   }
 }

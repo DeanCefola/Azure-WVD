@@ -23,6 +23,8 @@
   <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
   <!-- vertag<:>end -->
   <ItemGroup>
+    <Content Include="customimage\New-CustomHost.json" />
+    <Content Include="customimage\New-CustomHost.parameters.json" />
     <Content Include="WVD-NewHost.parameters.json" />
     <Content Include="old\azuredeploy.json" />
     <Content Include="old\azuredeploy.parameters.json" />
@@ -32,9 +34,6 @@
     <Content Include="Deploy-AzureResourceGroup.ps1" />
     <Content Include="WVD-NewHost.json" />
     <Content Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="WIP\" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
