@@ -1,8 +1,7 @@
 ﻿{
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
-
     "subnetName": {
       "value": "CoreSubnet"
     },
@@ -10,7 +9,7 @@
       "value": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-VNet-rg/providers/Microsoft.Network/virtualNetworks/AA-WVD-vNET"
     },
     "virtualMachineName": {
-      "value": "testwin10"
+      "value": "WVD-001"
     },
     "adminUsername": {
       "value": "lntad"
@@ -20,6 +19,12 @@
     },
     "DomainFQDN": {
       "value": "MSAzureAcademy.com"
-    }    
+    },
+    "RegistrationToken": {
+      "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkFDRkQ1MTcyMkM1MTE5MDI1OTFEQUY3MUY2QzY4MzZDRDI0RjM4QTgiLCJ0eXAiOiJKV1QifQ.eyJSZWdpc3RyYXRpb25JZCI6ImNjYjA2MjhkLWUxM2MtNDBhYy1iY2I1LWZjNzQ2YWIyZGFmMiIsIkJyb2tlclVyaSI6Imh0dHBzOi8vcmRicm9rZXIud3ZkLm1pY3Jvc29mdC5jb20vIiwiRGlhZ25vc3RpY3NVcmkiOiJodHRwczovL3JkZGlhZ25vc3RpY3Mud3ZkLm1pY3Jvc29mdC5jb20vIiwiRW5kcG9pbnRQb29sSWQiOiI5YzdmNDdkZi0yNzRkLTRiMDMtZTI5MC0wOGQ3NDBiYWFlOWUiLCJuYmYiOjE1Njk2NDg1NzksImV4cCI6MTU3MTI3MDQwMCwiaXNzIjoiUkRJbmZyYVRva2VuTWFuYWdlciIsImF1ZCI6IlJEbWkifQ.RimW005LAWiNaiTKfamNrmuLRjytnnFY9XYORWEp--9VEzJJ6KZvwz6Mel2m1q_p3-kiugMGAKwaORzoVL1yvSGfvQSUjEuLpc9BTehZn6f8gBLcM2u96WbqWe-2KdSUTz6_AuWIOjhWNiZ7hCPxAvR_2-Exz-sD4MV9KZieSX4oAP6eLyoRQGkcq1F5dBZDtwISaxdsSL-PHxaiOWFNuyl-uvQxRU5kTA6LM_uJsqkkBezeT4Mxjz9BElUlDkNj6tsMntn_8YiWrmFzDzBEnsTbaXAkM0IF6Jleua1pVGygQ-JLkJzwICpNZJOPtdw5TulmQH_9WGMoCZmywEwvJg"
+    },
+    "ProfilePath": {
+      "value": "\\\\MSAzureAcademy.com\\CorpShares\\WVDProfile"
+    }
   }
 }

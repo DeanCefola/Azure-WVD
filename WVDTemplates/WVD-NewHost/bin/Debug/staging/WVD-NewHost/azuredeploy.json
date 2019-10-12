@@ -1,6 +1,6 @@
 ﻿{
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "adminUsername": {
       "type": "string"
@@ -11,6 +11,23 @@
     "DomainFQDN": {
       "type": "string"
     },
+    "OperatingSystem": {
+      "type": "string",
+      "defaultValue": "Client",
+      "allowedValues": [
+        "Server",
+        "Client"
+      ]
+    },
+    "VMSize": {
+      "type": "string",
+      "defaultValue": "Small",
+      "allowedValues": [
+        "Small",
+        "Medium",
+        "Large"
+      ]
+    },
     "subnetName": {
       "type": "string"
     },
@@ -19,12 +36,44 @@
     },
     "virtualMachineName": {
       "type": "string"
+    },
+    "ProfilePath": {
+      "type": "string"
+    },
+    "RegistrationToken": {
+      "type": "string"
     }
   },
   "variables": {
+    "VM_Images": {
+      "Server": {
+        "publisher": "MicrosoftWindowsServer",
+        "offer": "WindowsServer",
+        "sku": "2019-Datacenter-smalldisk",
+        "version": "latest"
+      },
+      "Client": {
+        "publisher": "microsoftwindowsdesktop",
+        "offer": "office-365",
+        "sku": "1903-evd-o365pp",
+        "version": "latest"
+      }
+    },
+    "VM_SIZES": {
+      "Small": {
+        "WVDsize": "Standard_B2ms"
+      },
+      "Medium": {
+        "WVDsize": "Standard_DS3_v2"
+      },
+      "Large": {
+        "WVDsize": "Standard_DS14_v2"
+      }
+    },    
     "vnetId": "[parameters('virtualNetworkId')]",
     "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
-    "JoinUser": "[concat(parameters('adminUsername'),'@',parameters('DomainFQDN'))]"
+    "JoinUser": "[concat(parameters('adminUsername'),'@',parameters('DomainFQDN'))]",
+    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken')))]"
   },
   "resources": [
     {
@@ -70,10 +119,10 @@
             }
           },
           "imageReference": {
-            "publisher": "microsoftwindowsdesktop",
-            "offer": "office-365",
-            "sku": "1903-evd-o365pp",
-            "version": "latest"
+            "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
+            "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
+            "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
+            "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
           }
         },
         "networkProfile": {
@@ -92,7 +141,7 @@
             "provisionVmAgent": true
           }
         },
-        "licenseType": "Windows_Client"        
+        "licenseType": "Windows_Client"
       },
       "tags": {
         "costcode": "AA-Money"
@@ -103,7 +152,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat('testwin10', '/joinDomain')]",
+      "name": "[concat(parameters('virtualMachineName'), '/joinDomain')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "copy": {
@@ -132,10 +181,10 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
       ]
     },
-    {
+    {      
+      "type": "Microsoft.Resources/deployments",
       "name": "Microsoft.CustomScriptExtension-20190928132548",
       "apiVersion": "2015-01-01",
-      "type": "Microsoft.Resources/deployments",
       "properties": {
         "mode": "incremental",
         "templateLink": {
@@ -143,16 +192,16 @@
         },
         "parameters": {
           "vmName": {
-            "value": "testwin10"
+            "value": "[parameters('virtualMachineName')]"
           },
           "location": {
-            "value": "eastus"
+            "value": "[resourceGroup().location]"
           },
           "fileUris": {
             "value": "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1"
           },
           "arguments": {
-            "value": "-ProfilePath \\\\VM-DC-1.MSAzureAcademy.com\\WVDProfiles -RegistrationToken eyJhbGciOiJSUzI1NiIsImtpZCI6IkFDRkQ1MTcyMkM1MTE5MDI1OTFEQUY3MUY2QzY4MzZDRDI0RjM4QTgiLCJ0eXAiOiJKV1QifQ.eyJSZWdpc3RyYXRpb25JZCI6ImZhMWQxODMwLTVmMjktNGM1Yi04ODBiLTY4NmQ4YmE0ZWJlZCIsIkJyb2tlclVyaSI6Imh0dHBzOi8vcmRicm9rZXIud3ZkLm1pY3Jvc29mdC5jb20vIiwiRGlhZ25vc3RpY3NVcmkiOiJodHRwczovL3JkZGlhZ25vc3RpY3Mud3ZkLm1pY3Jvc29mdC5jb20vIiwiRW5kcG9pbnRQb29sSWQiOiJkNzVjNzVkMC04Y2I4LTRmZmEtZTI4Mi0wOGQ3NDBiYWFlOWUiLCJuYmYiOjE1Njk1NjE0MDksImV4cCI6MTU2OTczNDIwOCwiaXNzIjoiUkRJbmZyYVRva2VuTWFuYWdlciIsImF1ZCI6IlJEbWkifQ.a4a4Q6Jd1rd3sjvjxYhA3_96VZaW41mKVXmHo5ulUf69Wl0L6Qx4ay0sVFWNCwVa0MwrZDML1Y1oW8r9dZyBcoCvWvZiHoBWiV1OjHluLyQysaG_W4D86Uu4Fr4n70m2K6JneJ2NItm97bHr4sMHjAmbgZv0vMMcmHOYAD99XmSp0FU3V-XTUeQACHhU-SDMoFD-dCB0zQ6DjYmF0PDyWQnLdqhT66fTY7tEujcQdgFSk7ne4SDFEYOz6ADEYgJ0g7tr9eBAS8PJz084nPMKS0TrI3wFeJXwz7korelm_b-7QEU7DxMv3ThiwfQrpo5aMMx_mQ3q5qVlDOWhcbBY3w"
+            "value": "[variables('Arguments')]"            
           }
         }
       },
@@ -161,7 +210,7 @@
       ]
     }
   ],
-    "outputs": {
-       
+  "outputs": {
+     
     }
 }

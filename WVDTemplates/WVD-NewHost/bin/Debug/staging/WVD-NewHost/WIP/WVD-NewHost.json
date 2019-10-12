@@ -38,22 +38,25 @@
         "Large"
       ]
     },
-    "ProfilePath": {
-      "type": "string"
-    },
-    "RegistrationToken": {
-      "type": "string"
-    },
-    "virtualNetworkId": {
-      "type": "string"
-    },
-    "subnetName": {
-      "type": "string"
-    },
     "autoShutdownTime": {
       "type": "string"
     },
     "autoShutdownTimeZone": {
+      "type": "string"
+    },
+    "VnetRgName": {
+      "type": "string"
+    },
+    "VnetName": {
+      "type": "string"
+    },
+    "SubnetName": {
+      "type": "string"
+    },
+    "ProfilePath": {
+      "type": "string"
+    },
+    "RegistrationToken": {
       "type": "string"
     }
   },
@@ -83,37 +86,17 @@
         "WVDsize": "Standard_DS14_v2"
       }
     },
-    "fileUris": "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1",
     "VMName": "[concat(parameters('Prefix'),'-VM-')]",
-    "vnetId": "[parameters('virtualNetworkId')]",
-    "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+    "subnetRef": "[concat(subscription().id,'/resourceGroups/',parameters('VnetRgName'),'/providers/Microsoft.Network/virtualNetworks/', parameters('VnetName'),'/subnets/', parameters('subnetName'))]",
     "JoinUser": "[concat(parameters('adminUsername'),'@',parameters('DomainFQDN'))]",
-    "arguments": "[concat('-ProfilePath', parameters('ProfilePath'),'-RegistrationToken', parameters('RegistrationToken'))]"
+    "fileUris": "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1",
+    "UriFileNamePieces": "[split(variables('fileUris'), '/')]",
+    "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
+    "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
+    "firstFileName": "[variables('firstFileNameBreakString')[0]]",
+    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken')))]"    
   },
   "resources": [
-    {
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[concat(parameters('Prefix'),'-AVSet')]",
-      "apiVersion": "2016-04-30-preview",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "WVD-AVSet"
-      },
-      "copy": {
-        "name": "AVSet-Copy",
-        "count": 1
-      },
-      "sku": {
-        "name": "Aligned"
-      },
-      "properties": {
-        "platformUpdateDomainCount": 5,
-        "platformFaultDomainCount": 2
-      },
-      "dependsOn": [
-
-      ]
-    },
     {
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('VMName'),copyIndex(),'-nic')]",
@@ -141,7 +124,7 @@
         ]
       },
       "dependsOn": [
-        "AVSet-Copy"
+        
       ]
 
     },
@@ -159,14 +142,12 @@
         "displayName": "WVD-VM"
       },
       "properties": {
-        "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', concat(parameters('Prefix'),'-AVSet'))]"
-        },
         "hardwareProfile": {
           "vmSize": "[variables('VM_SIZES')[parameters('VMSize')].WVDsize]"
         },
         "storageProfile": {
           "osDisk": {
+            "name": "[concat(variables('VMName'),copyIndex(),'-OSDisk')]",
             "createOption": "FromImage",
             "managedDisk": {
               "storageAccountType": "StandardSSD_LRS"
@@ -196,67 +177,11 @@
           }
         }
       },
+      "zones": [
+        1
+      ],
       "dependsOn": [
         "WVDNic-Copy"
-      ]
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('VMName'),copyIndex(), '/joinDomain')]",
-      "apiVersion": "2015-06-15",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "JoinDomain-Copy",
-        "count": "[parameters('Instance')]"
-      },
-      "tags": {
-        "displayName": "Join Domain"
-      },
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "JsonADDomainExtension",
-        "typeHandlerVersion": "1.3",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "Name": "[parameters('DomainFQDN')]",
-          "User": "[variables('JoinUser')]",
-          "Restart": "true",
-          "Options": "3"
-        },
-        "protectedSettings": {
-          "Password": "[parameters('adminPassword')]"
-        }
-      },
-      "dependsOn": [
-        "WVD-Copy"
-      ]
-    },
-    {
-      "condition": false,
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('VMName'),copyIndex(),'/CustomScriptExtension')]",
-      "apiVersion": "2015-06-15",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "Script-Copy",
-        "count": "[parameters('Instance')]"
-      },
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "CustomScriptExtension",
-        "typeHandlerVersion": "1.8",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "fileUris": [
-            "[variables('fileUris')]"
-          ]
-        },
-        "protectedSettings": {
-          "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File', 'New-WVDSessionHost.ps1', '-ProfilePath', parameters('ProfilePath'),'-RegistrationToken', parameters('RegistrationToken'))]"
-        }
-      },
-      "dependsOn": [
-        "JoinDomain-Copy"
       ]
     },
     {
@@ -287,11 +212,69 @@
         }
       },
       "dependsOn": [
+        "WVD-Copy"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('VMName'),copyIndex(), '/joinDomain')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "JoinDomain-Copy",
+        "count": "[parameters('Instance')]"
+      },
+      "tags": {
+        "displayName": "Join Domain"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('DomainFQDN')]",
+          "User": "[variables('JoinUser')]",
+          "Restart": "true",
+          "Options": "3"
+        },
+        "protectedSettings": {
+          "Password": "[parameters('adminPassword')]"
+        }
+      },
+      "dependsOn": [
+        "Shutdown-Copy"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('VMName'),copyIndex(),'/CustomScriptExtension')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "Script-Copy",
+        "count": "[parameters('Instance')]"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[variables('fileUris')]"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' ', variables('arguments'))]"
+        }
+      },
+      "dependsOn": [
         "JoinDomain-Copy"
       ]
     }
   ],
   "outputs": {
-    
+
   }
 }
