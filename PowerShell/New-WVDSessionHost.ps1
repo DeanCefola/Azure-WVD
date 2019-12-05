@@ -23,17 +23,6 @@
 #>
 
 
-##############################
-#    WVD Script Parameters   #
-##############################
-Param (        
-    [Parameter(Mandatory = $true)]
-    [string]$ProfilePath,
-    [Parameter(Mandatory = $true)]
-    [string]$RegistrationToken
-)
-
-
 ######################
 #    WVD Variables   #
 ######################
@@ -43,7 +32,7 @@ $WVDAgentURI = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv
 $FSLogixURI = 'https://go.microsoft.com/fwlink/?linkid=2084562'
 $FSInstaller = 'FSLogixAppsSetup.zip'
 $ANFEnabled = $true # Refer to https://kirkryan.co.uk/2019/12/04/windows-virtual-desktop-(and-citrix)-with-fslogix for full deployment instructions
-$ANFSMBPath = "" # Insert your Azure NetApp Files SMB volume path here
+$ANFSMBPath = "\\anf-5b3b.kirkryanoutlook.onmicrosoft.com\wvd" # Insert your Azure NetApp Files SMB volume path here
 $WVDAgentInstaller = 'WVD-Agent.msi'
 $WVDBootInstaller = 'WVD-Bootloader.msi'
 $Win7x64_UpdateURI = 'https://download.microsoft.com/download/A/F/5/AF5C565C-9771-4BFB-973B-4094C1F58646/Windows6.1-KB2592687-x64.msu'                                        
@@ -53,7 +42,17 @@ $Win7x64_WMI5Installer = 'Win7-KB3191566-WMI5-x64.zip'
 $Win7x64_WVDAgentURI = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE3JZCm'
 $Win7x64_WVDBootMgrURI = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE3K2e3'
 
-
+#############################
+WVD Script Parameters   #
+#############################
+if (($ANFEnabled) -eq $false) {
+    Param (        
+        [Parameter(Mandatory = $true)]
+        [string]$ProfilePath,
+        [Parameter(Mandatory = $true)]
+        [string]$RegistrationToken
+    )
+}
 ####################################
 #    Test/Create Temp Directory    #
 ####################################
@@ -290,79 +289,80 @@ New-Item `
     -Path .\FSLogix `
     -Name ODFC `
     -Value "" `
-    -Force 
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "CCDLocations" `
-    -PropertyType "MultiString" `
-    -Value "type=smb,connectionString=$ProfilePath;type=smb,connectionString=\\msdean.file.core.windows.net\fslogix"
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "Enabled" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "DeleteLocalProfileWhenVHDShouldApply" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "FlipFlopProfileDirectoryName" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "PreventLoginWithFailure" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "PreventLoginWithTempProfile" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeOneDrive" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeOneNote" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeOneNote_UWP" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeOutlook" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeOutlookPersonalization" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeSharepoint" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeSkype" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "IncludeTeams" `
-    -PropertyType "DWord" `
-    -Value 1
-Pop-Location
-
+    -Force
+if (($ANFEnabled) -eq $false) {
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "CCDLocations" `
+        -PropertyType "MultiString" `
+        -Value "type=smb,connectionString=$ProfilePath;type=smb,connectionString=\\msdean.file.core.windows.net\fslogix"
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "Enabled" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "DeleteLocalProfileWhenVHDShouldApply" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "FlipFlopProfileDirectoryName" `
+        -PropertyType "DWord" `
+        -Value 0
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "PreventLoginWithFailure" `
+        -PropertyType "DWord" `
+        -Value 0
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "PreventLoginWithTempProfile" `
+        -PropertyType "DWord" `
+        -Value 0
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeOneDrive" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeOneNote" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeOneNote_UWP" `
+        -PropertyType "DWord" `
+        -Value 0
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeOutlook" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeOutlookPersonalization" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeSharepoint" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeSkype" `
+        -PropertyType "DWord" `
+        -Value 1
+    New-ItemProperty `
+        -Path .\FSLogix\ODFC `
+        -Name "IncludeTeams" `
+        -PropertyType "DWord" `
+        -Value 1
+    Pop-Location
+}
 
 
 #############
