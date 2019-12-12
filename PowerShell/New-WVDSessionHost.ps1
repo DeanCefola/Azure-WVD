@@ -32,7 +32,7 @@ $WVDAgentURI = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv
 $FSLogixURI = 'https://go.microsoft.com/fwlink/?linkid=2084562'
 $FSInstaller = 'FSLogixAppsSetup.zip'
 $ANFEnabled = $true # Refer to https://kirkryan.co.uk/2019/12/04/windows-virtual-desktop-(and-citrix)-with-fslogix for full deployment instructions
-$ANFSMBPath = "\\anf-5b3b.kirkryanoutlook.onmicrosoft.com\wvd" # Insert your Azure NetApp Files SMB volume path here
+$ANFSMBPath = "" # Insert your Azure NetApp Files SMB volume path here
 $WVDAgentInstaller = 'WVD-Agent.msi'
 $WVDBootInstaller = 'WVD-Bootloader.msi'
 $Win7x64_UpdateURI = 'https://download.microsoft.com/download/A/F/5/AF5C565C-9771-4BFB-973B-4094C1F58646/Windows6.1-KB2592687-x64.msu'                                        
@@ -49,6 +49,12 @@ if (($ANFEnabled) -eq $false) {
     Param (        
         [Parameter(Mandatory = $true)]
         [string]$ProfilePath,
+        [Parameter(Mandatory = $true)]
+        [string]$RegistrationToken
+    )
+}
+else {
+    Param (        
         [Parameter(Mandatory = $true)]
         [string]$RegistrationToken
     )
