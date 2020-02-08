@@ -6,6 +6,7 @@
 # Date                         Version      Changes
 #------------------------------------------------------------------------
 # 12/15/2019                     1.0        Intial Version
+# 02/07/2020                     1.1        Add more variables for all data 
 #
 #*********************************************************************************
 #
@@ -15,20 +16,29 @@
 ###########################
 #    General Variables    #
 ###########################
-$AADTenantID        = '10c5dfa7-b5c3-4cf2-9265-f0e32a960967'
-$SubscriptionID     = 'c82ad9b5-1009-44fd-abdc-2b30f8e55ba0'
-$TenantGroup        = 'Default Tenant Group'
-$TenantName         = 'WVD-Tenant-AzureAcademy'
-$HostPoolName       = 'WVD-Scaling'
-$RGName             = 'WVDMgmt'
-$AAName             = 'AA-WVD-Automation'
-$AARunAsName        = 'AzureRunAsConnection'
-$Location           = 'eastus'
-$WorkspaceName      = 'AA-WVD-LogAnalytics-00'                    
-$Workspace          = Get-AzOperationalInsightsWorkspace | Where-Object { $_.Name -eq $WorkspaceName }
-$WorkspaceID        = ($Workspace).CustomerId.guid
-$WorkspaceKey       = (Get-AzOperationalInsightsWorkspaceSharedKey -ResourceGroupName $WorkspaceRGName -Name $WorkspaceName).PrimarySharedKey
-$localPath          = 'C:\temp\'
+$AADTenantID           = '10c5dfa7-b5c3-4cf2-9265-f0e32a960967'
+$SubscriptionID        = 'c82ad9b5-1009-44fd-abdc-2b30f8e55ba0'
+$TenantName            = 'WVD-Tenant-AzureAcademy'
+$HostPoolName          = 'WVD-Scaling'
+$resourceGroupName     = 'WVDMgmt'
+$recurrenceInterval    = 15
+$beginPeakTime         = '9:00'
+$endPeakTime           = '18:00'
+$timeDifference        = '+5:00'
+$sessionThresholdPerCPU= 2
+$minimumNumberOfRdsh   = 1
+$limitSecondsToForceLogOffUser = 30
+$logOffMessageTitle    = 'Scaling Down - Please Log Off'
+$logOffMessageBody     = 'We are scaling down, Please log off at this time so you do not lose any work'
+$location              = 'eastus'
+$connectionAssetName   = 'AzureRunAsConnection'
+$automationAccountName = 'AA-WVD-Automation'
+$maintenanceTagName    = 'vm'
+$WorkspaceName         = 'AA-WVD-LogAnalytics-00'                    
+$Workspace             = Get-AzOperationalInsightsWorkspace | Where-Object { $_.Name -eq $WorkspaceName }
+$WorkspaceID           = ($Workspace).CustomerId.guid
+$WorkspaceKey          = (Get-AzOperationalInsightsWorkspaceSharedKey -ResourceGroupName $Workspace.ResourceGroupName -Name $WorkspaceName).PrimarySharedKey
+$localPath             = 'C:\temp\'
 cd $localPath
 
 
@@ -81,28 +91,25 @@ New-RdsRoleAssignment `
 #    Create Logic App    #
 ##########################
 & .\createazurelogicapp.ps1 `
-    -AADTenantId $AADTenantID `
-    -SubscriptionId $SubscriptionID `
-    -TenantGroupName $TenantGroup `
-    -TenantName $TenantName `
-    -HostpoolName $HostPoolName `
-    -Location $Location `
-    -ResourcegroupName $RGName `
-    -AutomationAccountName $AAName `
-    -ConnectionAssetName $AARunAsName `
-    -WebhookURI $WebhookURI `
-    -LogAnalyticsWorkspaceId $WorkspaceID `
-    -LogAnalyticsPrimaryKey $WorkspaceKey `
-    -RecurrenceInterval 15 `
-    -BeginPeakTime '9:00' `
-    -EndPeakTime '18:00' `
-    -TimeDifference '+5:00' `
-    -SessionThresholdPerCPU 2 `
-    -MinimumNumberOfRDSH 1 `
-    -MaintenanceTagName 'vm' `
-    -LimitSecondsToForceLogOffUser 30 `
-    -LogOffMessageTitle 'Scaling Down - Please Log Off' `
-    -LogOffMessageBody 'We are scaling down, Please log off at this time so you do not lose any work' `
+    -ResourceGroupName $resourceGroupName `
+    -AADTenantID $aadTenantId `
+    -SubscriptionID $subscriptionId `
+    -TenantName $tenantName `
+    -HostPoolName $hostPoolName `
+    -RecurrenceInterval $recurrenceInterval `
+    -BeginPeakTime $beginPeakTime `
+    -EndPeakTime $endPeakTime `
+    -TimeDifference $timeDifference `
+    -SessionThresholdPerCPU $sessionThresholdPerCPU `
+    -MinimumNumberOfRDSH $minimumNumberOfRdsh `
+    -LimitSecondsToForceLogOffUser $limitSecondsToForceLogOffUser `
+    -LogOffMessageTitle $logOffMessageTitle `
+    -LogOffMessageBody $logOffMessageBody `
+    -Location $location `
+    -ConnectionAssetName $connectionAssetName `
+    -WebHookURI $webHookURI `
+    -AutomationAccountName $automationAccountName `
+    -MaintenanceTagName $maintenanceTagName `
     -Verbose
 
 
