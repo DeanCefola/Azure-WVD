@@ -217,7 +217,7 @@ New-ItemProperty `
     -Path HKLM:\SOFTWARE\FSLogix\Profiles `
     -Name "CCDLocations" `
     -PropertyType "MultiString" `
-    -Value "type=smb,connectionString=$ProfilePath;type=smb,connectionString=\\msdean.file.core.windows.net\fslogix"
+    -Value "type=smb,connectionString=$ProfilePath"
 New-ItemProperty `
     -Path HKLM:\SOFTWARE\FSLogix\Profiles `
     -Name "Enabled" `
@@ -274,7 +274,7 @@ New-ItemProperty `
     -Path .\FSLogix\ODFC `
     -Name "CCDLocations" `
     -PropertyType "MultiString" `
-    -Value "type=smb,connectionString=$ProfilePath;type=smb,connectionString=\\msdean.file.core.windows.net\fslogix"
+    -Value "type=smb,connectionString=$ProfilePath"
 New-ItemProperty `
     -Path .\FSLogix\ODFC `
     -Name "Enabled" `
