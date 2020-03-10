@@ -212,37 +212,88 @@ New-Item `
     -Path HKLM:\SOFTWARE\FSLogix `
     -Name Profiles `
     -Value "" `
-    -Force 
+    -Force
+New-Item `
+    -Path HKLM:\Software\FSLogix\Profiles\ `
+    -Name Apps `
+    -Force
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "Enabled" `
+    -Type "Dword" `
+    -Value "1"
+New-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "VHDLocations" `
+    -Value $ProfilePath `
+    -PropertyType MultiString `
+    -Force
+<#
 New-ItemProperty `
     -Path HKLM:\SOFTWARE\FSLogix\Profiles `
     -Name "CCDLocations" `
     -PropertyType "MultiString" `
-    -Value "type=smb,connectionString=$ProfilePath;type=smb,connectionString=\\msdean.file.core.windows.net\fslogix"
+    -Value "type=smb,connectionString=$ProfilePath"
+#>
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "SizeInMBs" `
+    -Type "Dword" `
+    -Value "1024"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "IsDynamic" `
+    -Type "Dword" `
+    -Value "1"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "VolumeType" `
+    -Type String `
+    -Value "vhdx"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "LockedRetryCount" `
+    -Type "Dword" `
+    -Value "12"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "LockedRetryInterval" `
+    -Type "Dword" `
+    -Value "5"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "ProfileType" `
+    -Type "Dword" `
+    -Value "3"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "ConcurrentUserSessions" `
+    -Type "Dword" `
+    -Value "1"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "RoamSearch" `
+    -Type "Dword" `
+    -Value "2" 
 New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
-    -Name "Enabled" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
-    -Name "DeleteLocalProfileWhenVHDShouldApply" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
+    -Path HKLM:\Software\FSLogix\Profiles\Apps `
+    -Name "RoamSearch" `
+    -Type "Dword" `-Value "2"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
     -Name "FlipFlopProfileDirectoryName" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
-    -Name "PreventLoginWithFailure" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
-    -Name "PreventLoginWithTempProfile" `
-    -PropertyType "DWord" `
-    -Value 1
+    -Type "Dword" `
+    -Value "1" 
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "SIDDirNamePattern" `
+    -Type String `
+    -Value "%username%%sid%"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "SIDDirNameMatch" `
+    -Type String `
+    -Value "%username%%sid%" 
 New-ItemProperty `
     -Path HKLM:\SOFTWARE\FSLogix\Profiles `
     -Name "RebootOnUserLogoff" `
@@ -271,72 +322,75 @@ New-Item `
     -Value "" `
     -Force 
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
+    -Name "VHDLocations" `
+    -Value $ProfilePath `
+    -PropertyType MultiString `
+    -Force
+<#
+New-ItemProperty `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "CCDLocations" `
     -PropertyType "MultiString" `
-    -Value "type=smb,connectionString=$ProfilePath;type=smb,connectionString=\\msdean.file.core.windows.net\fslogix"
+    -Value "type=smb,connectionString=$ProfilePath"
+#>
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "Enabled" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "DeleteLocalProfileWhenVHDShouldApply" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "FlipFlopProfileDirectoryName" `
     -PropertyType "DWord" `
     -Value 0
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "SIDDirNamePattern" `
+    -Type String `
+    -Value "%username%%sid%"
+Set-ItemProperty `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name "SIDDirNameMatch" `
+    -Type String `
+    -Value "%username%%sid%" 
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "PreventLoginWithFailure" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
-    -Name "PreventLoginWithTempProfile" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeOneDrive" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeOneNote" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeOneNote_UWP" `
     -PropertyType "DWord" `
     -Value 0
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeOutlook" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeOutlookPersonalization" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeSharepoint" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeSkype" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path .\FSLogix\ODFC `
+    -Path HKLM:\Software\FSLogix\ODFC `
     -Name "IncludeTeams" `
     -PropertyType "DWord" `
     -Value 1
@@ -350,54 +404,3 @@ Pop-Location
 Restart-Computer -Force
 
 
-<######################
-#    App Creation    #
-######################
-$AppPath = '\\MSAzureAcademy.com\CorpShares\AppAttach'
-$Apps = Get-ChildItem -Path $AppPath | Where-Object -Property Name -Match .msix
-foreach ($App in $Apps){
-    $MSISource = "$AppPath\$App"
-    $Package = $app.Name
-    $VHDSource = $Package.Replace('.msix','.vhd')
-    $PackageName = $Package.Replace('.msix','')
-    $MSIXDestination = "C:\Program Files\WindowsApps\"+$PackageName
-    Write-Host `
-        -ForegroundColor Cyan `
-        -BackgroundColor Black `
-        $App
-}
-
-
-############################
-#    Enable Sideloading    #
-############################
-$registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
-$Name1 = "AllowAllTrustedApps"
-$value1 = "1"
-$Name2 = "AllowDevelopmentWithoutDevLicense"
-$value2 = "0"
-New-ItemProperty `
-    -Path $registryPath `
-    -Name $name1 `
-    -Value $value1 `
-    -PropertyType DWORD `
-    -Force
-New-ItemProperty `
-    -Path $registryPath `
-    -Name $name2 `
-    -Value $value2 `
-    -PropertyType DWORD `
-    -Force
-
-
-####################
-#    App Attach    #
-####################
-New-RdsRemoteApp `
-    -TenantName $tenantname `
-    -HostPoolName $hostpoolname `
-    -AppGroupName $AppGroupName `
-    -Name "VLC" `
-    -FilePath "C:\Program Files\WindowsApps\VLC_1.0.4.0_x64__s11z9dr7vpbt2\VFS\ProgramFilesX86\VideoLAN\VLC\vlc.exe" 
-
-#>
