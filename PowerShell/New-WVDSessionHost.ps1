@@ -1,4 +1,4 @@
-﻿<#Author       : Dean Cefola
+<#Author       : Dean Cefola
 # Creation Date: 09-15-2019
 # Usage        : Windows Virtual Desktop Scripted Install
 
