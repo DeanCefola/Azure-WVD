@@ -8,7 +8,7 @@
 # 12/15/2019                     1.0        Intial Version
 # 02/07/2020                     1.1        Add more variables for all data 
 # 02/27/2020                     1.2        Clean up variables for public use
-#
+# 03/17/2020                     1.3        fix mismatched variables
 #*********************************************************************************
 #
 #>
@@ -21,26 +21,26 @@ $AADTenantID           = '<Enter AzureAD Tenant ID>'
 $SubscriptionID        = '<Enter Azure Subscription ID>'
 $TenantName            = '<Enter WVD Tenant Name>'
 $HostPoolName          = '<Enter WVD HostPool Name>'
-$resourceGroupName     = '<Enter Azure Resource Group Name to create the automation resources>'
-$recurrenceInterval    = 15
-$beginPeakTime         = '9:00'
-$endPeakTime           = '18:00'
-$timeDifference        = '+5:00'
-$sessionThresholdPerCPU= 2
-$minimumNumberOfRdsh   = 1
-$limitSecondsToForceLogOffUser = 30
-$logOffMessageTitle    = '<Enter Log Off Message Title>'
-$logOffMessageBody     = '<Enter Log Off Message>'
-$location              = '<Enter AzureAD region to deploy automation resources>'
-$automationAccountName = '<Enter Azure Automation Account Name>'
-$connectionAssetName   = '<Enter Azure Automation RunAs Account Name>'
-$maintenanceTagName    = '<Enter Azure TAG to exclude resources from scaling automation>'
+$ResourceGroupName     = '<Enter Azure Resource Group Name to create the automation resources>'
+$RecurrenceInterval    = 15
+$BeginPeakTime         = '9:00'
+$EndPeakTime           = '18:00'
+$TimeDifference        = '+5:00'
+$SessionThresholdPerCPU= 2
+$MinimumNumberOfRdsh   = 1
+$LimitSecondsToForceLogOffUser = 30
+$LogOffMessageTitle    = '<Enter Log Off Message Title>'
+$LogOffMessageBody     = '<Enter Log Off Message>'
+$Location              = '<Enter AzureAD region to deploy automation resources>'
+$AutomationAccountName = '<Enter Azure Automation Account Name>'
+$ConnectionAssetName   = '<Enter Azure Automation RunAs Account Name>'
+$MaintenanceTagName    = '<Enter Azure TAG to exclude resources from scaling automation>'
 $WorkspaceName         = '<Enter Azure Log Analytics Workspace ID>'
 $Workspace             = Get-AzOperationalInsightsWorkspace | Where-Object { $_.Name -eq $WorkspaceName }
 $WorkspaceID           = ($Workspace).CustomerId.guid
 $WorkspaceKey          = (Get-AzOperationalInsightsWorkspaceSharedKey -ResourceGroupName $Workspace.ResourceGroupName -Name $WorkspaceName).PrimarySharedKey
-$localPath             = '<Enter local path on computer where you downloaded the Scaling Automation Power Shell Script Files i.e. c:\temp>'
-cd $localPath
+$LocalPath             = '<Enter local path on computer where you downloaded the Scaling Automation Power Shell Script Files i.e. c:\temp>'
+cd $LocalPath
 
 
 ##########################################
@@ -48,10 +48,10 @@ cd $localPath
 ##########################################
 Invoke-WebRequest `
     -Uri "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/createazureautomationaccount.ps1" `
-    -OutFile "$localPath\createazureautomationaccount.ps1"
+    -OutFile "$LocalPath\createazureautomationaccount.ps1"
 Invoke-WebRequest `
     -Uri "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/createazurelogicapp.ps1" `
-    -OutFile "$localPath\createazurelogicapp.ps1"
+    -OutFile "$LocalPath\createazurelogicapp.ps1"
 
 
 ########################################
@@ -59,8 +59,8 @@ Invoke-WebRequest `
 ########################################
 & .\createazureautomationaccount.ps1 `
     -SubscriptionId $SubscriptionID `
-    -ResourceGroupName $RGName `
-    -AutomationAccountName $AAName `
+    -ResourceGroupName $ResourceGroupName `
+    -AutomationAccountName $AutomationAccountName `
     -Location $Location `
     -WorkspaceName $Workspace `
     -Verbose
@@ -91,25 +91,25 @@ New-RdsRoleAssignment `
 #    Create Logic App    #
 ##########################
 & .\createazurelogicapp.ps1 `
-    -ResourceGroupName $resourceGroupName `
-    -AADTenantID $aadTenantId `
-    -SubscriptionID $subscriptionId `
-    -TenantName $tenantName `
-    -HostPoolName $hostPoolName `
-    -RecurrenceInterval $recurrenceInterval `
-    -BeginPeakTime $beginPeakTime `
-    -EndPeakTime $endPeakTime `
-    -TimeDifference $timeDifference `
-    -SessionThresholdPerCPU $sessionThresholdPerCPU `
-    -MinimumNumberOfRDSH $minimumNumberOfRdsh `
-    -LimitSecondsToForceLogOffUser $limitSecondsToForceLogOffUser `
-    -LogOffMessageTitle $logOffMessageTitle `
-    -LogOffMessageBody $logOffMessageBody `
-    -Location $location `
-    -ConnectionAssetName $connectionAssetName `
-    -WebHookURI $webHookURI `
-    -AutomationAccountName $automationAccountName `
-    -MaintenanceTagName $maintenanceTagName `
+    -ResourceGroupName $ResourceGroupName `
+    -AADTenantID $AADTenantID `
+    -SubscriptionID $SubscriptionID `
+    -TenantName $TenantName `
+    -HostPoolName $HostPoolName `
+    -RecurrenceInterval $RecurrenceInterval `
+    -BeginPeakTime $BeginPeakTime `
+    -EndPeakTime $EndPeakTime `
+    -TimeDifference $TimeDifference `
+    -SessionThresholdPerCPU $SessionThresholdPerCPU `
+    -MinimumNumberOfRDSH $MinimumNumberOfRdsh `
+    -LimitSecondsToForceLogOffUser $LimitSecondsToForceLogOffUser `
+    -LogOffMessageTitle $LogOffMessageTitle `
+    -LogOffMessageBody $LogOffMessageBody `
+    -Location $Location `
+    -ConnectionAssetName $ConnectionAssetName `
+    -WebHookURI $WebhookURI `
+    -AutomationAccountName $AutomationAccountName `
+    -MaintenanceTagName $MaintenanceTagName `
     -Verbose
 
 
