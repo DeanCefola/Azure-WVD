@@ -207,7 +207,7 @@ $fslogix_deploy_status = Start-Process `
 #    FSLogix User Profile Settings    #
 #######################################
 Push-Location 
-Set-Location HKLM:\SOFTWARE\FSLogix
+Set-Location HKLM:\SOFTWARE\
 New-Item `
     -Path HKLM:\SOFTWARE\FSLogix `
     -Name Profiles `
@@ -278,7 +278,8 @@ Set-ItemProperty `
 New-ItemProperty `
     -Path HKLM:\Software\FSLogix\Profiles\Apps `
     -Name "RoamSearch" `
-    -Type "Dword" `-Value "2"
+    -Type "Dword" `
+    -Value "2"
 Set-ItemProperty `
     -Path HKLM:\Software\FSLogix\Profiles `
     -Name "FlipFlopProfileDirectoryName" `
@@ -311,86 +312,82 @@ Pop-Location
 #    FSLogix Office Profile Settings    #
 #########################################
 Push-Location 
-Set-Location HKLM:\SOFTWARE\Policies
-New-Item `
-    -Name FSLogix `
-    -Value "" `
-    -Force 
+Set-Location HKLM:\SOFTWARE\Policies\
 New-Item `
     -Path .\FSLogix `
     -Name ODFC `
     -Value "" `
     -Force 
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "VHDLocations" `
     -Value $ProfilePath `
     -PropertyType MultiString `
     -Force
 <#
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "CCDLocations" `
     -PropertyType "MultiString" `
     -Value "type=smb,connectionString=$ProfilePath"
 #>
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "Enabled" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "FlipFlopProfileDirectoryName" `
     -PropertyType "DWord" `
     -Value 0
 Set-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "SIDDirNamePattern" `
     -Type String `
     -Value "%username%%sid%"
 Set-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles `
-    -Name "SIDDirNameMatch" `
-    -Type String `
-    -Value "%username%%sid%" 
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
+    -Name "RoamSearch" `
+    -Type "Dword" `
+    -Value "2" 
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeOneDrive" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeOneNote" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeOneNote_UWP" `
     -PropertyType "DWord" `
     -Value 0
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeOutlook" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeOutlookPersonalization" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeSharepoint" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeSkype" `
     -PropertyType "DWord" `
     -Value 1
 New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\ODFC `
+    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
     -Name "IncludeTeams" `
     -PropertyType "DWord" `
     -Value 1
