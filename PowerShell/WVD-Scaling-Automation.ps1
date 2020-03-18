@@ -54,6 +54,151 @@ Invoke-WebRequest `
     -OutFile "$LocalPath\createazurelogicapp.ps1"
 
 
+###################################
+#    Import PowerShell Modules    #
+###################################
+$Module = 'Az.Resources'
+if((Test-Path -Path "C:\Program Files\WindowsPowerShell\Modules\$Module" -ErrorAction SilentlyContinue)-eq $true) {
+    if((Get-Module -Name $Module -ErrorAction SilentlyContinue) -eq $false) {
+        Write-Host `
+            -ForegroundColor Cyan `
+            -BackgroundColor Black `
+            "Importing Module"        
+        Import-Module -Name $Module -Verbose -ErrorAction SilentlyContinue
+
+
+    }
+    Else {
+        Write-Host `
+            -ForegroundColor Yellow `
+            -BackgroundColor Black `
+            "$Module Module already imported"
+    }
+}
+else {
+    Install-Module `
+        -Name $Module `
+        -AllowClobber `
+        -Repository PSGallery `
+        -ErrorAction Stop `
+        -Force `
+        -Verbose  
+    
+}
+$Module = 'Az.Accounts'
+if((Test-Path -Path "C:\Program Files\WindowsPowerShell\Modules\$Module" -ErrorAction SilentlyContinue)-eq $true) {
+    if((Get-Module -Name $Module -ErrorAction SilentlyContinue) -eq $false) {
+        Write-Host `
+            -ForegroundColor Cyan `
+            -BackgroundColor Black `
+            "Importing Module"        
+        Import-Module -Name $Module -Verbose -ErrorAction SilentlyContinue
+
+
+    }
+    Else {
+        Write-Host `
+            -ForegroundColor Yellow `
+            -BackgroundColor Black `
+            "$Module Module already imported"
+    }
+}
+else {
+    Install-Module `
+        -Name $Module `
+        -AllowClobber `
+        -Repository PSGallery `
+        -ErrorAction Stop `
+        -Force `
+        -Verbose  
+    
+}
+$Module = 'Az.OperationalInsights'
+if((Test-Path -Path "C:\Program Files\WindowsPowerShell\Modules\$Module" -ErrorAction SilentlyContinue)-eq $true) {
+    if((Get-Module -Name $Module -ErrorAction SilentlyContinue) -eq $false) {
+        Write-Host `
+            -ForegroundColor Cyan `
+            -BackgroundColor Black `
+            "Importing Module"        
+        Import-Module -Name $Module -Verbose -ErrorAction SilentlyContinue
+
+
+    }
+    Else {
+        Write-Host `
+            -ForegroundColor Yellow `
+            -BackgroundColor Black `
+            "$Module Module already imported"
+    }
+}
+else {
+    Install-Module `
+        -Name $Module `
+        -AllowClobber `
+        -Repository PSGallery `
+        -ErrorAction Stop `
+        -Force `
+        -Verbose  
+    
+}
+$Module = 'Az.Automation'
+if((Test-Path -Path "C:\Program Files\WindowsPowerShell\Modules\$Module" -ErrorAction SilentlyContinue)-eq $true) {
+    if((Get-Module -Name $Module -ErrorAction SilentlyContinue) -eq $false) {
+        Write-Host `
+            -ForegroundColor Cyan `
+            -BackgroundColor Black `
+            "Importing Module"        
+        Import-Module -Name $Module -Verbose -ErrorAction SilentlyContinue
+
+
+    }
+    Else {
+        Write-Host `
+            -ForegroundColor Yellow `
+            -BackgroundColor Black `
+            "$Module Module already imported"
+    }
+}
+else {
+    Install-Module `
+        -Name $Module `
+        -AllowClobber `
+        -Repository PSGallery `
+        -ErrorAction Stop `
+        -Force `
+        -Verbose  
+    
+}
+$Module = 'Az.LogicApp'
+if((Test-Path -Path "C:\Program Files\WindowsPowerShell\Modules\$Module" -ErrorAction SilentlyContinue)-eq $true) {
+    if((Get-Module -Name $Module -ErrorAction SilentlyContinue) -eq $false) {
+        Write-Host `
+            -ForegroundColor Cyan `
+            -BackgroundColor Black `
+            "Importing Module"        
+        Import-Module -Name $Module -Verbose -ErrorAction SilentlyContinue
+
+
+    }
+    Else {
+        Write-Host `
+            -ForegroundColor Yellow `
+            -BackgroundColor Black `
+            "$Module Module already imported"
+    }
+}
+else {
+    Install-Module `
+        -Name $Module `
+        -AllowClobber `
+        -Repository PSGallery `
+        -ErrorAction Stop `
+        -Force `
+        -Verbose  
+    
+}
+
+
 ########################################
 #    Create Azure Automation Account   #
 ########################################
@@ -66,15 +211,15 @@ Invoke-WebRequest `
     -Verbose
 $WebhookURI = (Get-AzAutomationVariable `
     -Name "WebhookURI" `
-    -ResourceGroupName $RGName `
-    -AutomationAccountName $AAName `
+    -ResourceGroupName $ResourceGroupName `
+    -AutomationAccountName $AutomationAccountName `
     -ErrorAction SilentlyContinue).Value
 $WebhookURI
 
 ##############################################
 #    Create Azure Automation RunAS Account   #
 ##############################################
-#    Follow Doc to create Azure Automation RunAS Account
+#    Follow Doc to create Azure Automation RunAS Account    #
 
 
 ########################################################
