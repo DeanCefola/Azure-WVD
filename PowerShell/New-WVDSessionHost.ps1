@@ -17,6 +17,7 @@
 # 10/01/2019                     4.2        Add all FSLogix Profile Container Reg entries for easier management
 # 10/07/2019                     4.3        Add FSLogix Office Container Reg entries for easier management
 # 10/16/2019                     5.0        Add Windows 7 Support
+# 04/10/2020                     5.1        changed FSLogix download URI
 #
 #*********************************************************************************
 #
@@ -40,7 +41,7 @@ Param (
 $Localpath               = "c:\temp\wvd\"
 $WVDBootURI              = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
 $WVDAgentURI             = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv'
-$FSLogixURI              = 'https://go.microsoft.com/fwlink/?linkid=2084562'
+$FSLogixURI              = 'https://aka.ms/fslogix_download'
 $FSInstaller             = 'FSLogixAppsSetup.zip'
 $WVDAgentInstaller       = 'WVD-Agent.msi'
 $WVDBootInstaller        = 'WVD-Bootloader.msi'
