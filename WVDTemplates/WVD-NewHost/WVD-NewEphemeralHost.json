@@ -222,7 +222,7 @@
         }
       },
       "dependsOn": [
-        "Shutdown-Copy"
+        "WVD-Copy"
       ]
     },
     {
