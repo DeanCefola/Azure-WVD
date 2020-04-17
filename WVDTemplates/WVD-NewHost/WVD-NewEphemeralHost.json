@@ -99,7 +99,7 @@
     "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
     "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
     "firstFileName": "[variables('firstFileNameBreakString')[0]]",
-    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken'), '-LogAnalyticsWorkspaceID ', parameters('LogAnalyticsWorkspaceID'),'-LogAnalyticsPrimaryKey ', parameters('LogAnalyticsPrimaryKey')))]"
+    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken')))]"
   },
   "resources": [
     {
@@ -155,8 +155,9 @@
             "name": "[concat(variables('VMName'),copyIndex(),'-OSDisk')]",
             "createOption": "FromImage",
             "managedDisk": {
-              "storageAccountType": "StandardSSD_LRS"
+              "storageAccountType": "Standard_LRS"
             },
+            "caching": "ReadOnly",
             "diffDiskSettings": {
               "option": "Local"
             }
