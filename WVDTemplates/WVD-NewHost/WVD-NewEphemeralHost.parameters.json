@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Prefix": {
+      "value": "Stateless"
+    },
+    "AdminUserName": {
+      "value": "lntad"
+    },
+    "DomainFQDN": {
+      "value": "MSAzureAcademy.com"
+    },
+    "Instance": {
+      "value": 1
+    },
+    "OperatingSystem": {
+      "value": "Client"
+    },
+    "VMSize": {
+      "value": "Small"
+    },
+    "ProfilePath": {
+      "value": "\\\\MSAzureAcademy.com\\CorpShares\\FSLogix"
+    },
+    "RegistrationToken": {
+      "value": "eyJhbGciOiJSUb2tlcig_owMfHGX2mjSlUmWvi2-kg"
+    },
+    "VnetRgName": {
+      "value": "AA-WVD-VNet-rg"
+    },
+    "VnetName": {
+      "value": "AA-WVD-vNET"
+    },
+    "SubnetName": {
+      "value": "CoreSubnet"
+    }
+  }
+}
