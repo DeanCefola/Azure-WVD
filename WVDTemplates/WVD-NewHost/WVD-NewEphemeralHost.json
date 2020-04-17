@@ -1,5 +1,5 @@
 ﻿{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
@@ -129,7 +129,7 @@
         ]
       },
       "dependsOn": [
-
+        
       ]
 
     },
@@ -151,23 +151,23 @@
           "vmSize": "[variables('VM_SIZES')[parameters('VMSize')].WVDsize]"
         },
         "storageProfile": {
-          "osDisk": {
-            "name": "[concat(variables('VMName'),copyIndex(),'-OSDisk')]",
-            "createOption": "FromImage",
-            "managedDisk": {
-              "storageAccountType": "Standard_LRS"
+            "osDisk": {
+                "name": "[concat(variables('VMName'),copyIndex(),'-OSDisk')]",
+                "createOption": "FromImage",
+                "managedDisk": {
+                    "storageAccountType": "Standard_LRS"
+                },
+                "caching": "ReadOnly",
+                "diffDiskSettings": {
+                    "option": "Local"
+                }
             },
-            "caching": "ReadOnly",
-            "diffDiskSettings": {
-              "option": "Local"
+            "imageReference": {
+                "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
+                "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
+                "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
+                "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
             }
-          },
-          "imageReference": {
-            "publisher": "[variables('VM_IMAGES')[parameters('OperatingSystem')].publisher]",
-            "offer": "[variables('VM_Images')[parameters('OperatingSystem')].offer]",
-            "sku": "[variables('VM_Images')[parameters('OperatingSystem')].sku]",
-            "version": "[variables('VM_Images')[parameters('OperatingSystem')].version]"
-          }
         },
         "networkProfile": {
           "networkInterfaces": [
@@ -187,8 +187,8 @@
         },
         "licenseType": "[variables('License')[parameters('OperatingSystem')].License]"
       },
-      "zones":[
-        "1"
+      "zones": [
+        1
       ],
       "dependsOn": [
         "WVDNic-Copy"
@@ -222,7 +222,7 @@
         }
       },
       "dependsOn": [
-        "WVD-Copy"
+        "Shutdown-Copy"
       ]
     },
     {
@@ -242,8 +242,7 @@
         "settings": {
           "fileUris": [
             "[variables('fileUris')]"
-          ],
-          "commandToExecute": "thing"
+          ]
         },
         "protectedSettings": {
           "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' ', variables('arguments'))]"
