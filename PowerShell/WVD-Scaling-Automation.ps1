@@ -62,7 +62,7 @@ Invoke-WebRequest `
     -ResourceGroupName $ResourceGroupName `
     -AutomationAccountName $AutomationAccountName `
     -Location $Location `
-    -WorkspaceName $Workspace `
+    -WorkspaceName $WorkspaceName `
     -Verbose
 $WebhookURI = (Get-AzAutomationVariable `
     -Name "WebhookURI" `
