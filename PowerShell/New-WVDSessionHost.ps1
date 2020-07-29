@@ -29,8 +29,8 @@ Param (
         [string]$ProfilePath,
     [Parameter(Mandatory=$true)]
         [string]$RegistrationToken,
-    [Parameter(Mandatory=$false)]
-        [Switch]$Optimize,
+    [Parameter(Mandatory=$true)]
+        [Boolean]$Optimize,
     [Parameter()]
         [string]$Restart = $True        
 )
