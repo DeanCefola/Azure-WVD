@@ -25,12 +25,6 @@
     },
     "RegistrationToken": {
       "value": "eyJhbGciOiJSUzI1Nib2tlcig_owMfHGX2mjSlUmWvi2-kg"
-    },    
-    "autoShutdownTime": {
-      "value": "23:00"
-    },
-    "autoShutdownTimeZone": {
-      "value": "Eastern Standard Time"
     },
     "VnetRgName": {
       "value": "AA-WVD-VNet-rg"
