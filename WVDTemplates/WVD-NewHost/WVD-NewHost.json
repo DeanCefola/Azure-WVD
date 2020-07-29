@@ -37,13 +37,7 @@
         "Medium",
         "Large"
       ]
-    },
-    "autoShutdownTime": {
-      "type": "string"
-    },
-    "autoShutdownTimeZone": {
-      "type": "string"
-    },
+    },    
     "VnetRgName": {
       "type": "string"
     },
@@ -195,38 +189,7 @@
       "dependsOn": [
         "WVDNic-Copy"
       ]
-    },
-    {
-      "name": "[concat('shutdown-computevm-', concat(variables('VMName'),copyIndex()))]",
-      "type": "Microsoft.DevTestLab/schedules",
-      "apiVersion": "2017-04-26-preview",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "costcode": "AA-Money",
-        "displayName": "Shutdown"
-      },
-      "copy": {
-        "name": "Shutdown-Copy",
-        "count": "[parameters('Instance')]"
-      },
-      "properties": {
-        "status": "enabled",
-        "taskType": "ComputeVmShutdownTask",
-        "dailyRecurrence": {
-          "time": "[parameters('autoShutdownTime')]"
-        },
-        "timeZoneId": "[parameters('autoShutdownTimeZone')]",
-        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('VMName'),copyIndex()))]",
-        "notificationSettings": {
-          "status": "Disabled",
-          "notificationLocale": "en",
-          "timeInMinutes": "30"
-        }
-      },
-      "dependsOn": [
-        "WVD-Copy"
-      ]
-    },
+    },    
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(variables('VMName'),copyIndex(), '/joinDomain')]",

@@ -3,24 +3,16 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
-      "value": "WVD-10"
+      "value": "AdAuth"
     },
     "AdminUserName": {
       "value": "lntad"
-    },
-    "AdminPassword": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/25603d65-4ffd-4496-815d-417e73e71da3/resourceGroups/AA-WVD-SharedSvcs-rg/providers/Microsoft.KeyVault/vaults/AA-WVD-sharedsvcs-kv"
-        },
-        "secretName": "DefaultPassword"
-      }
     },
     "DomainFQDN": {
       "value": "MSAzureAcademy.com"
     },
     "Instance": {
-      "value": 2
+      "value": 1
     },
     "OperatingSystem": {
       "value": "Client"
@@ -29,10 +21,10 @@
       "value": "Small"
     },
     "ProfilePath": {
-      "value": "\\\\MSAzureAcademy.com\\CorpShares\\WVDProfile"
+      "value": "\\\\MSAzureAcademy.com\\CorpShares\\FSLogix"
     },
     "RegistrationToken": {
-      "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IkFDRkQ1MToW_WhLCgLai7JWh18owsazjntWmQ"
+      "value": "eyJhbGciOiJSUzI1Nib2tlcig_owMfHGX2mjSlUmWvi2-kg"
     },    
     "autoShutdownTime": {
       "value": "23:00"
