@@ -37,7 +37,7 @@
         "Medium",
         "Large"
       ]
-    },    
+    },
     "VnetRgName": {
       "type": "string"
     },
@@ -52,6 +52,13 @@
     },
     "RegistrationToken": {
       "type": "string"
+    },
+    "Optimize": {
+      "type": "bool",
+      "allowedValues": [
+        true,
+        false
+      ]
     }
   },
   "variables": {

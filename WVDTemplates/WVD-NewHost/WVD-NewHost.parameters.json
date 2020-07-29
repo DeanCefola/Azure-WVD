@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "Prefix": {
-      "value": "AdAuth"
+      "value": "Optimize"
     },
     "AdminUserName": {
       "value": "lntad"
@@ -20,20 +20,23 @@
     "VMSize": {
       "value": "Small"
     },
-    "ProfilePath": {
-      "value": "\\\\MSAzureAcademy.com\\CorpShares\\FSLogix"
-    },
-    "RegistrationToken": {
-      "value": "eyJhbGciOiJSUzI1Nib2tlcig_owMfHGX2mjSlUmWvi2-kg"
-    },
     "VnetRgName": {
-      "value": "AA-WVD-VNet-rg"
+      "value": "MSAA-Network-rg"
     },
     "VnetName": {
-      "value": "AA-WVD-vNET"
+      "value": "MSAA-vNET"
     },
     "SubnetName": {
       "value": "CoreSubnet"
+    },
+    "ProfilePath": {
+      "value": "\\\\msazureacademy.com\\CorpShares\\FSLogix"
+    },
+    "RegistrationToken": {
+      "value": "eyJhCWhQnGM3ohHKZ31JenFGzSZ"
+    },
+    "Optimize": {
+      "value": true
     }
   }
 }
