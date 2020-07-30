@@ -40,6 +40,8 @@ Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
 #################################
 #    Run WVD Optimize Script    #
 #################################
+New-Item -Path C:\Optimize\ -Name install.log -ItemType File -Force
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
+add-content c:\Optimize\install.log "Starting Optimizations"  
 .\Win10_VirtualDesktop_Optimize.ps1 -WindowsVersion 2004 -Restart -Verbose
 

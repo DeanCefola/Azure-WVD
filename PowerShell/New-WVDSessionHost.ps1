@@ -30,7 +30,7 @@ Param (
     [Parameter(Mandatory=$true)]
         [string]$RegistrationToken,
     [Parameter(Mandatory=$true)]
-        [Boolean]$Optimize,
+        [Boolean]$Optimize = $true,
     [Parameter()]
         [string]$Restart = $True        
 )
