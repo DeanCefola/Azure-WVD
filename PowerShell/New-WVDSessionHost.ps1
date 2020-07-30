@@ -1,7 +1,6 @@
 <#Author       : Dean Cefola
 # Creation Date: 09-15-2019
 # Usage        : Windows Virtual Desktop Scripted Install
-
 #********************************************************************************
 # Date                         Version      Changes
 #------------------------------------------------------------------------
@@ -17,22 +16,21 @@
 # 10/01/2019                     4.2        Add all FSLogix Profile Container Reg entries for easier management
 # 10/07/2019                     4.3        Add FSLogix Office Container Reg entries for easier management
 # 10/16/2019                     5.0        Add Windows 7 Support
-# 07/20/2020                     6.0        Add WVD Optimize Code from The-Virtual-Desktop-Team
+# 04/10/2020                     5.1        changed FSLogix download URI
 #
 #*********************************************************************************
 #
 #>
 
 
+##############################
+#    WVD Script Parameters   #
+##############################
 Param (        
     [Parameter(Mandatory=$true)]
         [string]$ProfilePath,
     [Parameter(Mandatory=$true)]
-        [string]$RegistrationToken,
-    [Parameter(Mandatory=$true)]
-        [Boolean]$Optimize = $true,
-    [Parameter()]
-        [string]$Restart = $True        
+        [string]$RegistrationToken
 )
 
 
@@ -42,7 +40,7 @@ Param (
 $Localpath               = "c:\temp\wvd\"
 $WVDBootURI              = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
 $WVDAgentURI             = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv'
-$FSLogixURI              = 'https://go.microsoft.com/fwlink/?linkid=2084562'
+$FSLogixURI              = 'https://aka.ms/fslogix_download'
 $FSInstaller             = 'FSLogixAppsSetup.zip'
 $WVDAgentInstaller       = 'WVD-Agent.msi'
 $WVDBootInstaller        = 'WVD-Bootloader.msi'
@@ -396,42 +394,8 @@ New-ItemProperty `
 Pop-Location
 
 
-##############################################
-#    WVD Optimizer (Virtual Desktop Team)    #
-##############################################
-If ($Optimize) {  
-    Write-Output "Optimizer selected"  
-    ################################
-    #    Download WVD Optimizer    #
-    ################################
-    New-Item -Path C:\ -Name Optimize -ItemType Directory -ErrorAction SilentlyContinue
-    $LocalPath = "C:\Optimize\"
-    $WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/master.zip'
-    $WVDOptimizeInstaller = "Windows_10_VDI_Optimize-master.zip"
-    Invoke-WebRequest `
-        -Uri $WVDOptimizeURL `
-        -OutFile "$Localpath$WVDOptimizeInstaller"
 
-
-    ###############################
-    #    Prep for WVD Optimize    #
-    ###############################
-    Expand-Archive `
-        -LiteralPath "C:\Optimize\Windows_10_VDI_Optimize-master.zip" `
-        -DestinationPath "$Localpath" `
-        -Force `
-        -Verbose
-    Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
-
-
-    #################################
-    #    Run WVD Optimize Script    #
-    #################################
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
-    .\Win10_VirtualDesktop_Optimize.ps1 -WindowsVersion 2004 -Restart -Verbose
-}
-else {
-    Write-Output "Optimize not selected"
-}
-
-
+#############
+#    END    #
+#############
+Restart-Computer -Force
