@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -106,7 +106,7 @@
     "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
     "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
     "firstFileName": "[variables('firstFileNameBreakString')[0]]",
-    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken'),parameters('Optimize')))]"
+    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken'), ' -Optimize ', parameters('Optimize')))]"
   },
   "resources": [
     {
