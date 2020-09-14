@@ -47,10 +47,10 @@ cd $LocalPath
 #    Download Scripts for WVD Scaling    #
 ##########################################
 Invoke-WebRequest `
-    -Uri "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/createazureautomationaccount.ps1" `
+    -Uri "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/CreateOrUpdateAzAutoAccount.ps1" `
     -OutFile "$LocalPath\createazureautomationaccount.ps1"
 Invoke-WebRequest `
-    -Uri "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/createazurelogicapp.ps1" `
+    -Uri "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/CreateOrUpdateAzLogicApp.ps1" `
     -OutFile "$LocalPath\createazurelogicapp.ps1"
 
 
