@@ -12,6 +12,10 @@
 #
 #>
 
+Param (        
+    [Parameter(Mandatory=$true)]
+        [string]$ProfilePath
+)
 
 #########################
 #    FSLogix Install    #
