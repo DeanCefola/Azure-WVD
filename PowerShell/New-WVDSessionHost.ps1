@@ -18,6 +18,7 @@
 # 10/07/2019                     4.3        Add FSLogix Office Container Reg entries for easier management
 # 10/16/2019                     5.0        Add Windows 7 Support
 # 07/20/2020                     6.0        Add WVD Optimize Code from The-Virtual-Desktop-Team
+# 10/27/2020                     7.0        Optimize FSLogix settings - Remove Office Profile Settings
 #
 #*********************************************************************************
 #
@@ -271,18 +272,11 @@ New-ItemProperty `
     -Value $ProfilePath `
     -PropertyType MultiString `
     -Force
-<#
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
-    -Name "CCDLocations" `
-    -PropertyType "MultiString" `
-    -Value "type=smb,connectionString=$ProfilePath"
-#>
 Set-ItemProperty `
     -Path HKLM:\Software\FSLogix\Profiles `
     -Name "SizeInMBs" `
     -Type "Dword" `
-    -Value "1024"
+    -Value "30000"
 Set-ItemProperty `
     -Path HKLM:\Software\FSLogix\Profiles `
     -Name "IsDynamic" `
@@ -293,36 +287,6 @@ Set-ItemProperty `
     -Name "VolumeType" `
     -Type String `
     -Value "vhdx"
-Set-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles `
-    -Name "LockedRetryCount" `
-    -Type "Dword" `
-    -Value "12"
-Set-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles `
-    -Name "LockedRetryInterval" `
-    -Type "Dword" `
-    -Value "5"
-Set-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles `
-    -Name "ProfileType" `
-    -Type "Dword" `
-    -Value "3"
-Set-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles `
-    -Name "ConcurrentUserSessions" `
-    -Type "Dword" `
-    -Value "1"
-Set-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles `
-    -Name "RoamSearch" `
-    -Type "Dword" `
-    -Value "2" 
-New-ItemProperty `
-    -Path HKLM:\Software\FSLogix\Profiles\Apps `
-    -Name "RoamSearch" `
-    -Type "Dword" `
-    -Value "2"
 Set-ItemProperty `
     -Path HKLM:\Software\FSLogix\Profiles `
     -Name "FlipFlopProfileDirectoryName" `
@@ -337,105 +301,14 @@ Set-ItemProperty `
     -Path HKLM:\Software\FSLogix\Profiles `
     -Name "SIDDirNameMatch" `
     -Type String `
-    -Value "%username%%sid%" 
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
-    -Name "RebootOnUserLogoff" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\FSLogix\Profiles `
-    -Name "ShutdownOnUserLogoff" `
-    -PropertyType "DWord" `
-    -Value 0
-Pop-Location
-
-
-#########################################
-#    FSLogix Office Profile Settings    #
-#########################################
-Add-Content -LiteralPath C:\New-WVDSessionHost.log "Configure FSLogix Office Settings"
-Push-Location 
-Set-Location HKLM:\SOFTWARE\Policies\
-New-Item `
-    -Path .\FSLogix `
-    -Name ODFC `
-    -Value "" `
-    -Force 
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "VHDLocations" `
-    -Value $ProfilePath `
-    -PropertyType MultiString `
-    -Force
-<#
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "CCDLocations" `
-    -PropertyType "MultiString" `
-    -Value "type=smb,connectionString=$ProfilePath"
-#>
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "Enabled" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "FlipFlopProfileDirectoryName" `
-    -PropertyType "DWord" `
-    -Value 0
-Set-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "SIDDirNamePattern" `
-    -Type String `
     -Value "%username%%sid%"
 Set-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "RoamSearch" `
-    -Type "Dword" `
-    -Value "2" 
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeOneDrive" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeOneNote" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeOneNote_UWP" `
-    -PropertyType "DWord" `
-    -Value 0
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeOutlook" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeOutlookPersonalization" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeSharepoint" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeSkype" `
-    -PropertyType "DWord" `
-    -Value 1
-New-ItemProperty `
-    -Path HKLM:\SOFTWARE\Policies\FSLogix\ODFC `
-    -Name "IncludeTeams" `
-    -PropertyType "DWord" `
+    -Path HKLM:\Software\FSLogix\Profiles `
+    -Name DeleteLocalProfileWhenVHDShouldApply `
+    -Type DWord `
     -Value 1
 Pop-Location
+
 
 
 ##############################################
