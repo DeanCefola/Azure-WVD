@@ -1,0 +1,928 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {    
+    "IPRange": {
+      "type": "string",
+      "defaultValue": "172.16",
+      "metadata": {
+        "description": "Enter the CIRD for this deployment (172.16.x.x leave last 2 octets blank)"
+      },
+      "minLength": 4,
+      "maxLength": 7
+    }    
+  },
+  "variables": {    
+    
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "azfw-vNET-HUB",
+      "apiVersion": "2017-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "vNET Hub"
+      },
+      "copy": {
+        "name": "vNET-Hub-Copy",
+        "count": 1
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[concat(parameters('IPRange'),'.0.0/22')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "GatewaySubnet",
+            "properties": {
+              "addressPrefix": "[concat(parameters('IPRange'),'.0.0/24')]"
+            }
+          },
+          {
+            "name": "JumpboxSubnet",
+            "properties": {
+              "addressPrefix": "[concat(parameters('IPRange'),'.1.0/24')]"
+            }
+          },
+          {
+            "name": "AzureFirewallSubnet",
+            "properties": {
+              "addressPrefix": "[concat(parameters('IPRange'),'.2.0/24')]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+
+      ],
+      "resources": [
+        {
+          "type": "virtualNetworkPeerings",
+          "name": "Hub--Spoke",
+          "apiVersion": "2016-06-01",
+          "location": "[resourceGroup().location]",
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azfw-vNET-SPOKE')]"
+            }
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', 'azfw-vNET-HUB')]",
+            "[concat('Microsoft.Network/virtualNetworks/', 'azfw-vNET-SPOKE')]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "azfw-vNET-SPOKE",
+      "apiVersion": "2017-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "vNET Spoke"
+      },
+      "copy": {
+        "name": "vNET-Spoke-Copy",
+        "count": 1
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[concat(parameters('IPRange'),'.4.0/24')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "ServersSubnet",
+            "properties": {
+              "addressPrefix": "[concat(parameters('IPRange'),'.4.0/26')]",
+              "routeTable": {
+                "id": "[resourceId('Microsoft.Network/routeTables', 'AZ-RouteTable')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/routeTables', 'AZ-RouteTable')]"
+      ],
+      "resources": [
+        {
+          "type": "virtualNetworkPeerings",
+          "name": "Spoke--Hub",
+          "apiVersion": "2016-06-01",
+          "location": "[resourceGroup().location]",
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azfw-vNET-HUB')]"
+            }
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', 'azfw-vNET-HUB')]",
+            "[concat('Microsoft.Network/virtualNetworks/', 'azfw-vNET-SPOKE')]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Network/routeTables",
+      "name": "AZ-RouteTable",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Route Table",
+        "Application": "Azure Learning",
+        "CostCode": "AA-Money",
+        "Environment": "Lab"
+      },
+      "copy": {
+        "name": "Route-Copy",
+        "count": 1
+      },
+      "properties": {
+        "disableBgpRoutePropagation": false,
+        "routes": [
+          {
+            "name": "AzfwDefaultRoute",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[concat(parameters('IPRange'),'.2.4')]"
+            }
+          },
+          {
+            "name": "HUBRoute",
+            "properties": {
+              "addressPrefix": "[concat(parameters('IPRange'),'.1.0/24')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[concat(parameters('IPRange'),'.2.4')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "AZFW-PIP",
+      "apiVersion": "2018-08-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "tags": {
+        "displayName": "AZFW-PIP",
+        "Application": "Azure Learning",
+        "CostCode": "AA-Money",
+        "Environment": "Lab"
+      },
+      "copy": {
+        "name": "AZFW-PIP-Copy",
+        "count": 1
+      },
+      "properties": {        
+        "publicIPAllocationMethod": "Static",
+        "publicIPAddressVersion": "IPv4"
+      }
+    },
+    {
+      "type": "Microsoft.Network/azureFirewalls",
+      "name": "AZFW-1",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Firewall",
+        "Application": "Azure Learning",
+        "CostCode": "AA-Money",
+        "Environment": "Lab"
+      },
+      "properties": {
+        "threatIntelMode": "Alert",
+        "additionalProperties": {
+          "Network.DNS.EnableProxy": "false",
+          "Network.DNS.Servers": "[concat(parameters('IPRange'),'.4.10')]"
+        },        
+        "sku": {
+          "name": "AZFW_VNet",
+          "tier": "Standard"
+        },
+        "ipConfigurations": [
+          {
+            "name": "IpConf",
+            "properties": {
+              "privateIPAddress": "[concat(parameters('IPRange'),'.2.4')]",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'azfw-vNET-HUB', 'AzureFirewallSubnet')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses','AZFW-PIP')]"
+              }
+            }
+          }
+        ],
+        "networkRuleCollections": [
+            {
+              "name": "ALLOW--Internal--ADRules",
+              "properties": {
+                  "priority": 100,
+                  "action": {
+                      "type": "Allow"
+                  },
+                  "rules": [
+                    {
+                      "name": "AD-Both",
+                      "protocols": [
+                          "TCP",
+                          "UDP",
+                          "ICMP"
+                      ],
+                      "sourceAddresses": [
+                          "*"
+                      ],
+                      "destinationAddresses": [
+                          "[concat(parameters('IPRange'),'.4.0/24')]"
+                      ],
+                      "sourceIpGroups": [],
+                      "destinationIpGroups": [],
+                      "destinationFqdns": [],
+                      "destinationPorts": [
+                          "53",
+                          "137",
+                          "139",
+                          "389",
+                          "464",
+                          "1024-5000",
+                          "49152-64000"
+                      ]
+                    },
+                    {
+                      "name": "AD-TCP",
+                      "protocols": [
+                          "TCP"
+                      ],
+                      "sourceAddresses": [
+                          "*"
+                      ],
+                      "destinationAddresses": [
+                          "[concat(parameters('IPRange'),'.4.0/24')]"
+                      ],
+                      "sourceIpGroups": [],
+                      "destinationIpGroups": [],
+                      "destinationFqdns": [],
+                      "destinationPorts": [
+                          "25",
+                          "42",
+                          "88",
+                          "135",
+                          "636",
+                          "3268",
+                          "3269",
+                          "5722",
+                          "9389",
+                          "5986"
+                      ]
+                    },
+                    {
+                      "name": "AD-UDP",
+                      "protocols": [
+                          "UDP"
+                      ],
+                      "sourceAddresses": [
+                          "*"
+                      ],
+                      "destinationAddresses": [
+                          "[concat(parameters('IPRange'),'.4.0/24')]"
+                      ],
+                      "sourceIpGroups": [],
+                      "destinationIpGroups": [],
+                      "destinationFqdns": [],
+                      "destinationPorts": [
+                          "123",
+                          "138"
+                      ]
+                    },
+                    {
+                      "name": "AD-SMB",
+                      "protocols": [
+                          "TCP",
+                          "ICMP"
+                      ],
+                      "sourceAddresses": [
+                          "*"
+                      ],
+                      "destinationAddresses": [
+                          "[concat(parameters('IPRange'),'.4.0/24')]"
+                      ],
+                      "sourceIpGroups": [],
+                      "destinationIpGroups": [],
+                      "destinationFqdns": [],
+                      "destinationPorts": [
+                          "445"
+                      ]
+                    }
+                  ]
+              }
+            },
+            {
+              "name": "ALLOW--Internal--DNS",
+              "properties": {
+                  "priority": 110,
+                  "action": {
+                      "type": "Allow"
+                  },
+                  "rules": [
+                    {
+                      "name": "DNS",
+                      "protocols": [
+                          "TCP",
+                          "UDP"
+                      ],
+                      "sourceAddresses": [
+                          "[concat(parameters('IPRange'),'.4.0/24')]"
+                      ],
+                      "destinationAddresses": [
+                          "*"
+                      ],
+                      "sourceIpGroups": [],
+                      "destinationIpGroups": [],
+                      "destinationFqdns": [],
+                      "destinationPorts": [
+                          "53"
+                      ]
+                   }
+                ]
+              }
+            },
+            {
+              "name": "ALLOW--Outbound--WDServiceEndpoint",
+              "properties": {
+                "priority": 120,
+                "action": {
+                    "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "WDServiceEndpoint",
+                    "protocols": [
+                        "TCP"
+                    ],
+                    "sourceAddresses": [
+                        "[concat(parameters('IPRange'),'.4.0/24')]"
+                    ],
+                    "destinationAddresses": [
+                        "168.63.129.16"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": [],
+                    "destinationPorts": [
+                        "80"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ALLOW--Outbound--AzureCloud",
+              "properties": {
+                  "priority": 130,
+                  "action": {
+                      "type": "Allow"
+                  },
+                  "rules": [
+                      {
+                          "name": "AzureCloud",
+                          "protocols": [
+                              "TCP"
+                          ],
+                          "sourceAddresses": [
+                              "[concat(parameters('IPRange'),'.4.0/24')]"
+                          ],
+                          "destinationAddresses": [
+                              "AzureCloud"
+                          ],
+                          "sourceIpGroups": [],
+                          "destinationIpGroups": [],
+                          "destinationFqdns": [],
+                          "destinationPorts": [
+                              "443"
+                          ]
+                      }
+                  ]
+              }
+            },
+            {
+              "name": "ALLOW--Outbound--WVDHealthMonitoring",
+              "properties": {
+                  "priority": 140,
+                  "action": {
+                      "type": "Allow"
+                  },
+                  "rules": [
+                      {
+                          "name": "HealthMonitoring",
+                          "protocols": [
+                              "TCP"
+                          ],
+                          "sourceAddresses": [
+                              "[concat(parameters('IPRange'),'.4.0/24')]"
+                          ],
+                          "destinationAddresses": [
+                              "168.63.129.16"
+                          ],
+                          "sourceIpGroups": [],
+                          "destinationIpGroups": [],
+                          "destinationFqdns": [],
+                          "destinationPorts": [
+                              "80"
+                          ]
+                      }
+                  ]
+              }
+            },
+            {
+              "name": "ALLOW--Outbound--WVD",
+              "properties": {
+                  "priority": 150,
+                  "action": {
+                      "type": "Allow"
+                  },
+                  "rules": [
+                      {
+                          "name": "WVD",
+                          "protocols": [
+                              "TCP"
+                          ],
+                          "sourceAddresses": [
+                              "[concat(parameters('IPRange'),'.4.0/24')]"
+                          ],
+                          "destinationAddresses": [
+                              "WindowsVirtualDesktop"
+                          ],
+                          "sourceIpGroups": [],
+                          "destinationIpGroups": [],
+                          "destinationFqdns": [],
+                          "destinationPorts": [
+                              "443"
+                          ]
+                      }
+                  ]
+              }
+            }
+        ],
+        "applicationRuleCollections": [
+            {
+                "name": "ALLOW--OutBound--AzureServices",
+                "properties": {
+                    "priority": 1000,
+                    "action": {
+                        "type": "Allow"
+                    },
+                    "rules": [
+                        {
+                            "name": "Microsoft",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*.microsoft.com"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "Bing",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*.bing.com"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "Github",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*.bing.com"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "Azure Backup",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [
+                                "AzureBackup"
+                            ],
+                            "targetFqdns": [],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "Windows Update",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [
+                                "WindowsUpdate"
+                            ],
+                            "targetFqdns": [],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "Azure Services",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [
+                                "AppServiceEnvironment",
+                                "MicrosoftActiveProtectionService",
+                                "WindowsDiagnostics"
+                            ],
+                            "targetFqdns": [],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "ALLOW--Outbound--WVD",
+                "properties": {
+                    "priority": 100,
+                    "action": {
+                        "type": "Allow"
+                    },
+                    "rules": [
+                        {
+                            "name": "url_WVD",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*.wvd.microsoft.com"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_AzureMonitoring",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "gcs.prod.monitoring.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_DiagMonitoring",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "production.diagnostics.monitoring.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_AzureTrafficBlob",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*xt.blob.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_AzureTrafficServiceBus",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*eh.servicebus.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_AzureTrafficTable",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*xt.table.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_AzureTrafficQueue",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "*xt.queue.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_AzureMarketplace",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "catalogartifact.azureedge.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_KMS",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 1688
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "kms.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_Agent&SxSStackUpdates",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "mrsglobalsteus2prod.blob.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "url_AzurePortalSupport",
+                            "protocols": [
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "wvdportalstorageblob.blob.core.windows.net"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "ip_AzureInstanceMetadataServiceEndpoint",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "169.254.169.254"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "ip_SessionHostHealthMonitoring",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                }
+                            ],
+                            "fqdnTags": [],
+                            "targetFqdns": [
+                                "168.63.129.16"
+                            ],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "MicrosoftActiveProtectionService",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [
+                                "MicrosoftActiveProtectionService"
+                            ],
+                            "targetFqdns": [],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "WindowsDiagnostics",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [
+                                "WindowsDiagnostics"
+                            ],
+                            "targetFqdns": [],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        },
+                        {
+                            "name": "WindowsVirtualDesktop",
+                            "protocols": [
+                                {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                },
+                                {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                }
+                            ],
+                            "fqdnTags": [
+                                "WindowsVirtualDesktop"
+                            ],
+                            "targetFqdns": [],
+                            "sourceAddresses": [
+                                "[concat(parameters('IPRange'),'.4.0/24')]"
+                            ],
+                            "sourceIpGroups": []
+                        }
+                    ]
+                }
+            }
+        ],
+        "natRuleCollections": [
+            
+        ]
+      }
+    }
+  ],
+  "outputs": {
+
+  }
+}
