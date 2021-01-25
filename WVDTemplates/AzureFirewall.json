@@ -919,7 +919,13 @@
         "natRuleCollections": [
             
         ]
-      }
+      },
+      "dependsOn": [
+          "vNET-Hub-Copy",
+          "vNET-Spoke-Copy",
+          "Route-Copy",
+          "AZFW-PIP-Copy"
+      ]
     }
   ],
   "outputs": {
