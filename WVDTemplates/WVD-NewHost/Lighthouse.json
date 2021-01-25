@@ -1,0 +1,24 @@
+{
+    "schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "Parameters": {
+        "mspName": {
+            "value": "Doug FT PM"
+        },
+        "mspOfferDescription": {
+            "value": "MSP Demo"
+        },
+        "managedByTenantID": {
+            "value": "10c5dfa7-b5c3-4cf2-9265-f0e32a960967"
+        },
+        "authorizations": {
+            "value": [
+                {
+                    "principalId": "b50a6cf6-8067-4fbf-bc54-95f0dd6100bb",
+                    "principalIdDisplayName": "Admins",
+                    "roleRefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                }
+            ]
+        }
+    }
+}
