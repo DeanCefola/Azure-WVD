@@ -19,6 +19,7 @@
 # 10/16/2019                     5.0        Add Windows 7 Support
 # 07/20/2020                     6.0        Add WVD Optimize Code from The-Virtual-Desktop-Team
 # 10/27/2020                     7.0        Optimize FSLogix settings - Remove Office Profile Settings
+# 02/01/2021                     7.1        Add RegKey for Screen Protection
 #
 #*********************************************************************************
 #
@@ -309,6 +310,20 @@ Set-ItemProperty `
     -Value 1
 Pop-Location
 
+
+##########################################
+#    Enable Screen Capture Protection    #
+##########################################
+Add-Content -LiteralPath C:\New-WVDSessionHost.log "Enable Screen Capture Protection"
+Push-Location 
+Set-Location "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"
+New-ItemProperty `
+    -Path .\ `
+    -Name fEnableScreenCaptureProtection `
+    -Value "1" `
+    -PropertyType DWord `
+    -Force
+Pop-Location
 
 
 ##############################################
