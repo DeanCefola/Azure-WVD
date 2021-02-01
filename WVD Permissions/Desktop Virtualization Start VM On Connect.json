@@ -1,0 +1,18 @@
+{
+    "properties":{
+        "roleName":"Desktop Virtualization Start VM on Connect",
+        "description":"Start WVD VM on Connect",        
+        "permissions":[
+            {
+                "actions":[
+                    "Microsoft.Compute/virtualMachines/start/action",
+                    "Microsoft.Compute/virtualMachines/read"
+                ],
+                "notActions":[],
+                "dataActions":[],
+                "notDataActions":[]
+            }
+        ],
+        "assignableScopes":[]
+    }
+}
