@@ -34,7 +34,7 @@
                         "<imgBuilderId>": {}
                             
                     }
-            },
+                    },
         
         "properties": {
             "buildTimeoutInMinutes" : 120,
