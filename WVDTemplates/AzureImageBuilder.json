@@ -1,5 +1,5 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
       "imageTemplateName": {
@@ -31,7 +31,7 @@
             "identity": {
                 "type": "UserAssigned",
                         "userAssignedIdentities": {
-                        "<imgBuilderId>": {}
+                        "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourcegroups/AIB-Rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity1615290213": {}
                             
                     }
                     },
@@ -47,24 +47,12 @@
         
             "source": {
                 "type": "PlatformImage",
-                    "publisher": "microsoftwindowsdesktop",
+                    "publisher": "MicrosoftWindowsDesktop",
                     "offer": "office-365",
-                    "sku": "20h1-evd-o365pp",
+                    "sku": "20h2-evd-o365pp",
                     "version": "latest"
             },
-            "customize": [
-                    {
-                        "type": "PowerShell",
-                        "name": "OptimizeOS",
-                        "runElevated": true,
-                        "runAsSystem": true,
-                        "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/1_Optimize_OS_for_WVD.ps1"
-                    },
-                    {
-                        "type": "WindowsRestart",
-                        "restartCheckCommand": "write-host 'restarting post Optimizations'",
-                        "restartTimeout": "5m"
-                    },
+            "customize": [   
                     {
                         "type": "PowerShell",
                         "name": "Install Teams",
@@ -76,8 +64,7 @@
                         "type": "WindowsRestart",
                         "restartCheckCommand": "write-host 'restarting post Teams Install'",
                         "restartTimeout": "5m"
-                    },
-                        
+                    },                        
                     {
                         "type": "WindowsUpdate",
                         "searchCriteria": "IsInstalled=0",
@@ -87,14 +74,13 @@
                                     ],
                         "updateLimit": 40
                     }
-
             ],
             "distribute": 
             [
                 {   
                     "type": "SharedImage",
-                    "galleryImageId": "/subscriptions/<subscriptionID>/resourceGroups/<rgName>/providers/Microsoft.Compute/galleries/<sharedImageGalName>/images/<imageDefName>",
-                    "runOutputName": "<runOutputName>",
+                    "galleryImageId": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/AIB-Rg/providers/Microsoft.Compute/galleries/aibgallery01/images/win10wvd",
+                    "runOutputName": "sigOutput",
                     "artifactTags": {
                         "source": "wvd10",
                         "baseosimg": "windows10"
@@ -111,3 +97,10 @@
     
     ]
 }    
+
+
+
+
+
+
+
