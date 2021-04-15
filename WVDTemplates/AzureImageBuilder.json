@@ -41,27 +41,18 @@
 
             "vmProfile": 
                     {
-                    "vmSize": "Standard_D2_v2",
+                    "vmSize": "Standard_B2ms",
                     "osDiskSizeGB": 127
                     },
         
             "source": {
                 "type": "PlatformImage",
-                    "publisher": "MicrosoftWindowsDesktop",
-                    "offer": "windows-10",
-                    "sku": "20h1-ent",
+                    "publisher": "microsoftwindowsdesktop",
+                    "offer": "office-365",
+                    "sku": "20h1-evd-o365pp",
                     "version": "latest"
             },
             "customize": [
-
-        
-                    {
-                        "type": "PowerShell",
-                        "name": "installFsLogix",
-                        "runElevated": true,
-                        "runAsSystem": true,
-                        "scriptUri": "https://raw.githubusercontent.com/danielsollondon/azvmimagebuilder/master/solutions/14_Building_Images_WVD/0_installConfFsLogix.ps1"
-                    },
                     {
                         "type": "PowerShell",
                         "name": "OptimizeOS",
@@ -109,7 +100,7 @@
                         "baseosimg": "windows10"
                     },
                     "replicationRegions": [
-                      "<region1>"
+                      "eastus", "uksouth", "japanwest"
 
                     ]
                 }
