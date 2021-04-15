@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
       "imageTemplateName": {
@@ -31,15 +31,15 @@
             "identity": {
                 "type": "UserAssigned",
                         "userAssignedIdentities": {
-                        "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourcegroups/AIB-Rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aibIdentity1615290213": {}
+                        "<imgBuilderId>": {}
                             
                     }
-                    },
+            },
         
         "properties": {
             "buildTimeoutInMinutes" : 120,
 
-            "vmProfile": 
+             "vmProfile": 
                     {
                     "vmSize": "Standard_B2ms",
                     "osDiskSizeGB": 127
@@ -79,14 +79,14 @@
             [
                 {   
                     "type": "SharedImage",
-                    "galleryImageId": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/AIB-Rg/providers/Microsoft.Compute/galleries/aibgallery01/images/win10wvd",
-                    "runOutputName": "sigOutput",
+                    "galleryImageId": "/subscriptions/<subscriptionID>/resourceGroups/<rgName>/providers/Microsoft.Compute/galleries/<sharedImageGalName>/images/<imageDefName>",
+                    "runOutputName": "<runOutputName>",
                     "artifactTags": {
                         "source": "wvd10",
                         "baseosimg": "windows10"
                     },
                     "replicationRegions": [
-                      "eastus", "uksouth", "japanwest"
+                      "<region1>"
 
                     ]
                 }
@@ -97,10 +97,3 @@
     
     ]
 }    
-
-
-
-
-
-
-
