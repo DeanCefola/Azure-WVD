@@ -236,6 +236,7 @@ Add-Content -LiteralPath C:\New-WVDSessionHost.log "WVD Agent Install Complete"
 Wait-Event -Timeout 5
 
 
+<#
 #########################
 #    FSLogix Install    #
 #########################
@@ -245,7 +246,7 @@ $fslogix_deploy_status = Start-Process `
     -ArgumentList "/install /quiet" `
     -Wait `
     -Passthru
-
+#>
 
 #######################################
 #    FSLogix User Profile Settings    #
@@ -269,8 +270,8 @@ Set-ItemProperty `
     -Value "1"
 New-ItemProperty `
     -Path HKLM:\Software\FSLogix\Profiles `
-    -Name "VHDLocations" `
-    -Value $ProfilePath `
+    -Name "CCDLocations" `
+    -Value "type=smb,connectionString=$ProfilePath" `
     -PropertyType MultiString `
     -Force
 Set-ItemProperty `
