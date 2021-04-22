@@ -22,7 +22,7 @@ This template will
 - Create WVD HostPool
 - Create Active Directory domain for the new VM(s) to join
 - Create a central file share for WVD Profiles
--- **NOTE:** If You are using Azure Files with AD Authentication, this must be configured and required permissions added before you deploy.
+-   **NOTE:** If You are using Azure Files with AD Authentication, this must be configured and required permissions added before you deploy.
 - Generate HostPool Regestration Token
 
 ----
