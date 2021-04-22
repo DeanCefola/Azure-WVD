@@ -1,0 +1,30 @@
+
+
+az desktopvirtualization hostpool create `
+    --resource-group "rg-wth-wvd-d-eus" `
+    --name "hp-wth-wvd-d-eus" `
+    --location "eastus" `
+    --host-pool-type "Pooled" `
+    --load-balancer-type "BreadthFirst" `
+    --max-session-limit 10 `
+    --description "US General Users" `
+    --friendly-name "US Pool" `
+    --personal-desktop-assignment-type "Automatic" `
+    --registration-info expiration-time="2021-05-01T14:01:54.9571247Z" registration-token-operation="Update" `
+    --tags Application="wvdZeroTo140" costcenter="AZ-140" Environment="Lab" Owner "WVD Admin" SupportContact "x1234" `
+    --custom-rdp-property "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;"
+
+
+        
+        
+
+
+
+
+
+
+
+
+
+
+
