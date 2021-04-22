@@ -5,6 +5,8 @@ This template will
 - Download the latest WVD Installer Agent, Bootloader and FSLogix software
 - Auto configure the new VM(s) to join your Host Pool
 - Auto configure the new VM(s) to use a central storage location for WVD Profiles with FSLogix
+- Enable Screen Protection 
+- Add WVD Optimizations for Windows 10 Multi-Session
 
 ----
 ----
@@ -14,13 +16,13 @@ This template will
 **Permissions:**
 - Azure Active Directory Global Administrator
 - Active Directory Administrator
-- Account to join AD Domain (optional)
+- Account to join AD Domain
 
-**Infrastructure:**
-- Create WVD Tenant
+**Required Infrastructure:**
 - Create WVD HostPool
 - Create Active Directory domain for the new VM(s) to join
 - Create a central file share for WVD Profiles
+**NOTE:** If You are using Azure Files with AD Authentication, this must be configured and required permissions added before you deploy.
 - Generate HostPool Regestration Token
 
 ----
