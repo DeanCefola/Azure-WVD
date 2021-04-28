@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+         "hostpoolName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Hostpool to be created."
+            }
+        }
+    },    
+    "variables": {
+        
+    },
+    "resources": [
+        {
+            "name": "[parameters('hostpoolName')]",
+            "apiVersion": "2019-12-10-preview",
+            "type": "Microsoft.DesktopVirtualization/hostpools",
+            "location": "[resourceGroup().location]",            
+            "properties": {
+                "loadBalancerType": "BreadthFirst",
+                "customRdpProperty": "",
+                "maxSessionLimit": 10,
+                "personalDesktopAssignmentType": "Automatic",
+                "validationEnvironment": false,
+                "hostPoolType": "Pooled",
+                "preferredAppGroupType": "Desktop"               
+            }
+        }
+    ],
+    "outputs": {}
+}
