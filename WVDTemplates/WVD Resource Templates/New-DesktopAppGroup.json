@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AppGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the WVD Desktop App Group"
+            }
+        },
+        "applicationGroupType": {
+            "type": "string",
+            "metadata": {
+                "description": "Desktop or RemoteApp"
+            },
+            "allowedValues": [
+                "Desktop",
+                "RemoteApp"
+            ],
+            "defaultValue": "Desktop"
+        },
+        "hostPoolArmPath": {
+            "type": "string",
+            "metadata": {
+                "description": "Host Pool Resource ID"
+            }
+        }
+    },    
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DesktopVirtualization/applicationGroups",
+            "name": "[parameters('AppGroupName')]",
+            "apiVersion": "2021-02-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "applicationGroupType": "[parameters('applicationGroupType')]",                
+                "description": "[concat(parameters('AppGroupName'),'Application Group')]",
+                "friendlyName": "[concat(parameters('AppGroupName'),'app group')]",
+                "hostPoolArmPath": "[parameters('hostPoolArmPath')]"
+            }
+        }
+    ],
+    "outputs": {}
+}
