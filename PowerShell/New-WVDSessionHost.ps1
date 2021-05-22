@@ -20,6 +20,7 @@
 # 07/20/2020                     6.0        Add WVD Optimize Code from The-Virtual-Desktop-Team
 # 10/27/2020                     7.0        Optimize FSLogix settings - Remove Office Profile Settings
 # 02/01/2021                     7.1        Add RegKey for Screen Protection
+# 05/22/2021                     7.2        Multiple changes to WVD Optimization code (remove winversion, Add EULA, Add Paramater for Optimize All
 #
 #*********************************************************************************
 #
@@ -55,6 +56,7 @@ $Win7x64_UpdateInstaller = 'Win7-KB2592687-x64.msu'
 $Win7x64_WMI5Installer   = 'Win7-KB3191566-WMI5-x64.zip'
 $Win7x64_WVDAgent        = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE3JZCm'
 $Win7x64_WVDBootMgrURI   = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE3K2e3'
+$Optimizations           = "All"
 
 
 ####################################
@@ -338,12 +340,12 @@ If ($Optimize -eq $true) {
     Add-Content -LiteralPath C:\New-WVDSessionHost.log "Optimize Selected"
     Add-Content -LiteralPath C:\New-WVDSessionHost.log "Creating C:\Optimize folder"
     New-Item -Path C:\ -Name Optimize -ItemType Directory -ErrorAction SilentlyContinue
-    $LocalOptimizePath = "C:\Optimize\"
-    $WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/master.zip'
+    $LocalPath = "C:\Optimize\"
+    $WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
     $WVDOptimizeInstaller = "Windows_10_VDI_Optimize-master.zip"
     Invoke-WebRequest `
         -Uri $WVDOptimizeURL `
-        -OutFile "$LocalOptimizePath$WVDOptimizeInstaller"
+        -OutFile "$Localpath$WVDOptimizeInstaller"
 
 
     ###############################
@@ -352,10 +354,10 @@ If ($Optimize -eq $true) {
     Add-Content -LiteralPath C:\New-WVDSessionHost.log "Optimize downloaded and extracted"
     Expand-Archive `
         -LiteralPath "C:\Optimize\Windows_10_VDI_Optimize-master.zip" `
-        -DestinationPath "$LocalOptimizePath" `
+        -DestinationPath "$Localpath" `
         -Force `
         -Verbose
-    Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
+
 
 
     #################################
@@ -363,7 +365,7 @@ If ($Optimize -eq $true) {
     #################################
     Add-Content -LiteralPath C:\New-WVDSessionHost.log "Begining Optimize"
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
-    .\Win10_VirtualDesktop_Optimize.ps1 -WindowsVersion 2004 -Verbose
+    .\Win10_VirtualDesktop_Optimize.ps1 -Optimizations $Optimizations -Restart -AcceptEULA -Verbose
     Add-Content -LiteralPath C:\New-WVDSessionHost.log "Optimization Complete"
 }
 else {
