@@ -29,6 +29,12 @@ Set-AdfsCertificateAuthority `
 Install-Script -Name ConfigureWVDSSO 
 
 
+
+#################################################################
+##############     WVD ADFS SSO Shared Key Method     ###########
+#################################################################
+
+
 ############################################
 #    ADFS Relying-Party Trust Shared Key   #
 ############################################
@@ -47,6 +53,25 @@ $secret = Set-AzKeyVaultSecret `
         -AsPlainText -Force) `
         -Tag @{ 'AllowedWVDSubscriptions' = $hp.Id.Split('/')[2]}
 
+
+###############################################
+#    Configure HostPool for SSO Shared Key    #
+###############################################
+Update-AzWvdHostPool `
+    -Name "<Host Pool Name>" `
+    -ResourceGroupName "<Host Pool Resource Group Name>" `
+    -SsoadfsAuthority "<ADFSServiceUrl>" `
+    -SsoClientId "<WVD Web App URI>" `
+    -SsoSecretType SharedKeyInKeyVault `
+    -SsoClientSecretKeyVaultPath $secret.Id
+
+
+
+
+
+#################################################################
+###############    WVD ADFS SSO Certificate Method    ###########
+#################################################################
 
 
 ######################################
@@ -72,11 +97,26 @@ $secret = Import-AzKeyVaultCertificate `
         -AsPlainText `
         -Force
     )
+
+
+#################################################
+#    Configure Host Pool for SSO Certificate    #
+#################################################
+Update-AzWvdHostPool `
+    -Name "<Host Pool Name>" `
+    -ResourceGroupName "<Host Pool Resource Group Name>" `
+    -SsoadfsAuthority "<ADFSServiceUrl>" `
+    -SsoClientId "<WVD Web App URI>" `
+    -SsoSecretType CertificateInKeyVault `
+    -SsoClientSecretKeyVaultPath $secret.Id
+
+
+
     
+
 
 # ADFS SSO Docs
 # https://docs.microsoft.com/en-us/windows-server/identity/ad-fs/operations/ad-fs-single-sign-on-settings
-
 ########################
 #    ADFS Setup SSO    #
 ########################
