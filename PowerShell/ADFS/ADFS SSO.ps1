@@ -19,7 +19,7 @@
 ###################################
 Set-AdfsCertificateAuthority `
     -EnrollmentAgentCertificateTemplate "ADFSEnrollmentAgent" `
-    -LogonCertificateTemplate "ADFS Cert" `
+    -LogonCertificateTemplate "ADFSSSO" `
     -EnrollmentAgent
 
 
