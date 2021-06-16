@@ -1,4 +1,4 @@
-﻿# Windows Virtual Desktop Automated Deployment
+﻿# AK Windows Virtual Desktop Automated Deployment
 This template will
 - Allow you to select either a Windows Server or Windows Client VM for deployment
 - Auto join your Active Directory Domain
