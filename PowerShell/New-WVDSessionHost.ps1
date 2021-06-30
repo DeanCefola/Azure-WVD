@@ -21,6 +21,7 @@
 # 10/27/2020                     7.0        Optimize FSLogix settings - Remove Office Profile Settings
 # 02/01/2021                     7.1        Add RegKey for Screen Protection
 # 05/22/2021                     7.2        Multiple changes to WVD Optimization code (remove winversion, Add EULA, Add Paramater for Optimize All
+# 06/30/2021                     7.3        Add RegKey for Azure AD Join
 #
 #*********************************************************************************
 #
@@ -325,6 +326,23 @@ New-ItemProperty `
     -Name fEnableScreenCaptureProtection `
     -Value "1" `
     -PropertyType DWord `
+    -Force
+Pop-Location
+
+
+##############################
+#    Enable Azure AD Join    #
+##############################
+Add-Content -LiteralPath C:\New-WVDSessionHost.log "Enable Azure AD Join"
+Push-Location 
+Set-Location HKLM:\SOFTWARE\Microsoft
+New-Item `
+    -Path HKLM:\SOFTWARE\Microsoft `
+    -Name RDInfraAgent `
+    -Force
+New-Item `
+    -Path HKLM:\Software\Microsoft\RDInfraAgent `
+    -Name AADJPrivate `
     -Force
 Pop-Location
 
