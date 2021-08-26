@@ -51,13 +51,6 @@
     },
     "RegistrationToken": {
       "type": "string"
-    },
-    "Optimize": {
-      "type": "bool",
-      "allowedValues": [
-        true,
-        false
-      ]
     }
   },
   "variables": {
@@ -106,12 +99,12 @@
     "VMName": "[concat(parameters('Prefix'),'-VM-')]",
     "subnetRef": "[concat(subscription().id,'/resourceGroups/',parameters('VnetRgName'),'/providers/Microsoft.Network/virtualNetworks/', parameters('VnetName'),'/subnets/', parameters('subnetName'))]",
     "JoinUser": "[concat(parameters('adminUsername'),'@',parameters('DomainFQDN'))]",
-    "fileUris": "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1",
+    "fileUris": "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-AVD-Win11-Host.ps1",
     "UriFileNamePieces": "[split(variables('fileUris'), '/')]",
     "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
     "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
     "firstFileName": "[variables('firstFileNameBreakString')[0]]",
-    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken'), ' -Optimize ', parameters('Optimize')))]"
+    "Arguments": "[string(concat('-ProfilePath ', parameters('ProfilePath'), ' -RegistrationToken ', parameters('RegistrationToken')))]"
   },
   "resources": [
     {
