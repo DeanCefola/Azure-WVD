@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Prefix": {
+      "value": "opt"
+    },
+    "AdminUserName": {
+      "value": "lntad"
+    },
+    "DomainFQDN": {
+      "value": "MSAzureAcademy.com"
+    },
+    "Instance": {
+      "value": 1
+    },
+    "OperatingSystem": {
+      "value": "Windows11"
+    },
+    "VMSize": {
+      "value": "Small"
+    },
+    "VnetRgName": {
+      "value": "MSAA-Network-rg"
+    },
+    "VnetName": {
+      "value": "MSAA-vNET"
+    },
+    "SubnetName": {
+      "value": "CoreSubnet"
+    },
+    "ProfilePath": {
+      "value": "\\\\msazureacademy.com\\CorpShares\\FSLogix"
+    },
+    "RegistrationToken": {
+      "value": "eyJhCWhQnGM3ohHKZ31JenFGzSZ"
+    },
+    "Optimize": {
+      "value": true
+    }
+  }
+}
