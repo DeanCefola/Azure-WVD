@@ -141,7 +141,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(variables('VMName'),copyIndex())]",
-      "apiVersion": "2019-03-01",
+      "apiVersion": "2021-03-01",
       "location": "[resourceGroup().location]",
       "copy": {
         "name": "AVD-Copy",
@@ -187,11 +187,7 @@
           "adminPassword": "[parameters('AdminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": true,
-            "provisionVmAgent": true,
-            "patchSettings": {
-                "enableHotpatching": false,
-                "patchMode": "AutomaticByOS"
-            }
+            "provisionVmAgent": true            
         }
         },
         "securityProfile": {
