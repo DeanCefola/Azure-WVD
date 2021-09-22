@@ -1,6 +1,6 @@
 {
 	"properties": {
-		"roleName": "Autoscaling",
+		"roleName": "Desktop Virtualization Autoscale",
 		"description": "Friendly description.",
 		"assignableScopes": [
 			"/subscriptions/<SubscriptionID>"
