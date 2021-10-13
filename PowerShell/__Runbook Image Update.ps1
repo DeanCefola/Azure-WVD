@@ -19,7 +19,6 @@
         ## Register-AzResourceProvider -ProviderNamespace Microsoft.KeyVault
 #>
 
-
 ##########################
 #    Script Parameters   #
 ##########################
@@ -31,6 +30,10 @@ Param (
         [Parameter(Mandatory=$true)]
         [validateset('Personal','Pooled','Both','Single')]
         [String] $PoolType,
+        [Parameter(Mandatory=$false)]        
+        [String] $SinglePoolName,
+        [Parameter(Mandatory=$false)]
+        [String] $PoolResourceGroupName,
         [Parameter(Mandatory=$true)]        
         [String] $AAResourceGroup =  'MSAA-WVDMgt',
         [Parameter(Mandatory=$true)]        
@@ -38,7 +41,6 @@ Param (
         [Parameter(Mandatory=$true)]        
         [String] $ImageID = '/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/CPC-RG/providers/Microsoft.Compute/galleries/Win365Gallery/images/W365-Ent/versions/21.1.0'        
 )
-
 
 ################
 #    Log in    #
@@ -52,12 +54,12 @@ Import-Module Orchestrator.AssetManagement.Cmdlets -ErrorAction SilentlyContinue
 ##################
 #    Variables   #
 ##################
-$DomainFQDN = (get-azautomationvariable -Name DomainName -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName).value
-$FSLogixProfilePath = (get-azautomationvariable -Name FSLogixPath -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName).value
-$AACreds = (get-azautomationcredential -name adjoin -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName)
+$DomainFQDN = (Get-AzAutomationVariable -Name DomainName -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName).Value
+$FSLogixProfilePath = (Get-AzAutomationVariable -Name FSLogixPath -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName).Value
+$AACreds = (Get-AzAutomationCredential Name adjoin -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName)
 $DomainUserName = $AACreds.UserName
-$DomainPassword = $AACreds.getnetworkcredentials().password
-$DomainPassword1 = (Get-AzKeyVaultSecret -VaultName Image-KeyVault-1 -Name adjoin).secretvalue
+$DomainPassword = $AACreds.GetNetworkCredentials().Password
+$DomainPassword1 = (Get-AzKeyVaultSecret -VaultName Image-KeyVault-1 -Name adjoin).SecretValue
 $DomainCreds = New-Object System.Management.Automation.PSCredential ($DomainUserName, $DomainPassword1)
 
 
@@ -76,64 +78,47 @@ $Nics = Get-AzResource -TagName $TagName -TagValue $TagValue `
 ########################
 #    Get Pools Info    #
 ########################
-IF(($PoolType) -eq 'Personal') {
-    Write-Host `
-    -BackgroundColor Black `
-    -ForegroundColor Cyan `
-    "Gathering PERSONAL Host Pools"
-    $HPs = Get-AzWvdHostPool | Where-Object -Property HostPoolType -EQ $PoolType
-
-}
-IF(($PoolType) -eq 'Pooled') {
-    Write-Host `
-    -BackgroundColor Black `
-    -ForegroundColor Cyan `
-    "Gathering POOLED Host Pools"
-    $HPs = Get-AzWvdHostPool | Where-Object -Property HostPoolType -EQ $PoolType
-    
-}
-IF(($PoolType) -eq 'Both') {
-    Write-Host `
-    -BackgroundColor Black `
-    -ForegroundColor Cyan `
-    "Gathering BOTH types of Pools"
-    $HPs = Get-AzWvdHostPool
-    
-}
-IF(($PoolType) -eq 'Single') {
-    Write-Host `
-    -BackgroundColor Black `
-    -ForegroundColor Cyan `
-    "Gathering Hosts from Single Pool"
-    $PoolName = read-host -prompt "Enter the name of the Single Host Pool to update"
-    $PoolResourceGroupName = read-host -prompt "Enter the resource group name where the Single Host Pool is located"
-    $HPs = Get-AzWvdHostPool -name $PoolName -ResourceGroupName $PoolResourceGroupName
-    
+switch ($PoolType) {
+    Personal {
+        Write-Output "Gathering PERSONAL Host Pools"
+        $HPs = Get-AzWvdHostPool | Where-Object -Property HostPoolType -EQ $PoolType
+    }
+    Pooled {
+        Write-Output "Gathering POOLED Host Pools"
+        $HPs = Get-AzWvdHostPool | Where-Object -Property HostPoolType -EQ $PoolType
+    }
+    Both {
+        Write-Output "Gathering BOTH types of Pools"
+        $HPs = Get-AzWvdHostPool
+    }
+    Single {
+        Write-Output "Gathering Hosts from "$SinglePoolName
+        $HPs = Get-AzWvdHostPool -name $SinglePoolName -ResourceGroupName $PoolResourceGroupName
+    }
 }
 
 
 ################################
 #    Set Hosts to Drain Mode   #
 ################################
+$InactiveHosts = @()
 $ErrorActionPreference = 'SilentlyContinue'
 foreach ($HP in $HPs) {
     $HPName = $HP.Name
     $HPRG = ($HP.id).Split('/')[4]
-    Write-Host `
-        -BackgroundColor Black `
-        -ForegroundColor Magenta `
-        "Checking $HPName"
+    Write-Output "Checking $HPName"
     $AllSessionHosts = Get-AzWvdSessionHost `
         -HostPoolName $HPName `
         -ResourceGroupName $HPRG
     foreach ($vm in $VMs) {
-        foreach ($sessionHost in $AllSessionHosts | Where-Object {$_.ResourceId -eq $vm.Id}) {                
+        foreach ($sessionHost in $AllSessionHosts | Where-Object {$_.ResourceId -eq $vm.Id}) {
+            $userSessions = Get-AzWvdUserSession -ResourceGroupName $HPRG -HostPoolName $HP -SessionHostName $sessionHost.Name.Split('/')[1]
+            if ($null -eq $userSessions)  {
+                $InactiveHosts += $vm
+            }
             if ($sessionHost.Name -match $HPName) {
             $sessionHostName = $sessionHost.Name
-                Write-Host `
-                -BackgroundColor Black `
-                -ForegroundColor Green `
-                "Session Host $sessionHostName FOUND in $HPName"
+                Write-Output "Session Host $sessionHostName FOUND in $HPName"
                 If (($SessionHost.AllowNewSession) -eq $true) {
                     Write-Output "Enabling Drain Mode $sessionHostName"
                     Update-AzWvdSessionHost `
@@ -152,56 +137,92 @@ foreach ($HP in $HPs) {
 $ErrorActionPreference = 'Continue'
 
 
-#Write Foreach Loop
+###################################
+#    Generate New HP Reg Token    #
+###################################
+$TokenTime = $((get-date).ToUniversalTime().AddDays(1).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))
+foreach ($HP in $HPs) {
+    $HPName = $HP.Name
+    $HPRG = ($HP.id).Split('/')[4]
+    Write-Output "Generate New Registration Token for Pool - $HPName"    
+    New-AzWvdRegistrationInfo -ResourceGroupName $HPRG -HostPoolName $HPName -ExpirationTime $TokenTime
+    $registrationkey = Get-AzWvdRegistrationInfo -HostpoolName $HPName -ResourceGroupName $HPRG
+    $Token = $registrationkey.Token
+
+
 
 #########################
-#    Dealloate Hosts    #
+#    Deallocate Hosts   #
 #########################
-$VMName = 'EB-WVD-VM-0'
-$RGName = 'QS-WVD'
-$NewVMName = $VMName+"-OSDisk-"+(Get-Date -Format d-M-y)
-Get-AzVM -name $VMName | Stop-AzVM -Force
+foreach ($inactiveHost in $inactiveHosts) {
+    Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force 
+    [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
+    $newDiskCfg = New-AzDiskConfig -Location $inactiveHost.Location -CreateOption FromImage -GalleryImageReference @{Id = $ImageID}
+    $newDisk = New-AzDisk -DiskName $newDiskName -Disk $newDiskCfg -ResourceGroupName $InactiveHost.StorageProfile.OsDisk.ManagedDisk.Id.Split("/")[4]
+    
+    $vmStatusCounter = 0
+    while ($vmStatusCounter -lt 12)
+    {
+        $vmStatus = (Get-AzVM -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -Status).Statuses[1].Code.Split("/")[1]
+        if ($vmStatus -eq "deallocated")
+        {
+            break
+        }
+        $vmStatusCounter++
+        Start-Sleep -Seconds 5s
+    }
+
+    Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id
+    Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
+    Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName $inactiveHost.ResourceGroupName -NoWait
+}
 
 
-##########################################
-#    Provision New OSDisks from Image    #
-##########################################
-$diskConfig = New-AzDiskConfig `
-   -Location EastUS `
-   -CreateOption FromImage `
-   -GalleryImageReference @{Id = $ImageID}
-
-New-AzDisk -Disk $diskConfig `
-   -ResourceGroupName $RGName `
-   -DiskName $NewVMName
-
-
-######################
-#    OS Disk Swap    #
-######################
-$vm = Get-AzVM -ResourceGroupName $RGName -Name $VMName
-$disk = Get-AzDisk -ResourceGroupName $RGName -Name $NewVMName
-Set-AzVMOSDisk -VM $vm -ManagedDiskId $disk.Id -Name $disk.Name 
-Update-AzVM -ResourceGroupName $RGName -VM $vm 
-
-
-###################
-#    Start VMs    #
-###################
-Get-AZVM -name $VMName | Start-AzVM
+#########################
+#    Rename Computer    #
+#########################
 Invoke-AzVMRunCommand `
-    -ResourceGroupName $RGName -Name $VMName -CommandId 'RunPowerShellScript' -ScriptPath '<pathToScript>' -Parameter @{"arg1" = "var1";"arg2" = "var2"}
-rename-computer 
+    -ResourceGroupName $RGName `
+    -Name $VMName `
+    -CommandId 'RunPowerShellScript' `
+    -ScriptPath 'https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/RenameComputer.ps1' `
+    -Parameter @{"VMName" = "$VMName"}
+
 
 ######################################
 #    Remove Join Domain Extension    #
 ######################################
-Remove-AzVMExtension -name joindomain -VMName $VMName -ResourceGroupName $RGName -Force -Verbose
+(get-AzVMExtension `
+    -ResourceGroupName $RGName `
+    -VMName $VMName) | `
+    Where-Object `
+        -Property Name `
+        -match domain | `
+        Remove-AzVMExtension `
+            -Force `
+            -Verbose
+
+
+
+########################################
+#    Remove Custom Script Extension    #
+########################################
+(get-AzVMExtension `
+    -ResourceGroupName $RGName `
+    -VMName $VMName) | `
+    Where-Object `
+        -Property ExtensionType `
+        -match CustomScriptExtension | `
+        Remove-AzVMExtension `
+            -Force `
+            -Verbose
+
 
 #####################
 #    Join Domain    #
 #####################
 Set-AzVMADDomainExtension `
+    -TypeHandlerVersion 1.3 `
     -DomainName $DomainFQDN `
     -VMName $VMName `
     -ResourceGroupName $RGName `
@@ -211,14 +232,20 @@ Set-AzVMADDomainExtension `
     -Restart `
     -Verbose
 
-   
 
 #######################
 #    Join HostPool    #
 #######################
-#New-SessionHost
-New-AZVMExtension 
+Set-AzVMCustomScriptExtension `
+    -ResourceGroupName $RGName `
+    -VMName $VMName `
+    -Location (get-azresourcegroup -name $RGName).location `
+    -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1" `
+    -Run "New-WVDSessionHost.ps1" `
+    -Name AVDImageExtension `
+    -Argument "$FSLogixProfilePath $Token"
 
 
-
-
+##########################
+#    Update Image Tag    #
+##########################
