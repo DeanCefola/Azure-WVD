@@ -35,6 +35,8 @@ Param (
         [String] $PoolType,
         [Parameter(Mandatory=$false)]        
         [String] $SinglePoolName,
+        [Parameter(Mandatory=$false)]        
+        [String] $PoolResourceGroupName,
         [Parameter(Mandatory=$true)]        
         [String] $AAResourceGroup =  'MSAA-WVDMgt',
         [Parameter(Mandatory=$true)]        
