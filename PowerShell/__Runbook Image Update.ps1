@@ -59,10 +59,8 @@ Import-Module Orchestrator.AssetManagement.Cmdlets -ErrorAction SilentlyContinue
 ##################
 $DomainFQDN = (Get-AzAutomationVariable -Name DomainName -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName).Value
 $FSLogixProfilePath = (Get-AzAutomationVariable -Name FSLogixPath -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName).Value
-$AACreds = (Get-AzAutomationCredential -Name adjoin -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName)
-$DomainUserName = $AACreds.UserName
-$DomainPassword = $AACreds.GetNetworkCredentials().Password
-$DomainCreds = New-Object System.Management.Automation.PSCredential ($DomainUserName, $DomainPassword)
+$AACreds = (Get-AutomationPSCredential -Name 'adjoin')
+$DomainCreds = New-Object System.Management.Automation.PSCredential ($AACreds.UserName, $AACreds.GetNetworkCredentials().Password)
 
 
 ################################
