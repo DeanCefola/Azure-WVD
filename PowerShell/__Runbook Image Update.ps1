@@ -1,11 +1,14 @@
-﻿################
+################
 #    Prereqs   #
 ################
 <#
     Tags
     Image Version (Shared Image Gallery)
     Host Pools
-    Automation Account        
+    Automation Account
+        Az modules: Az.Accounts, Az.Automation, Az.ManagedServiceIdentity, and Az.Compute imported into the Automation account
+        Manage identity for automation account
+        Set fx variables
     KeyVault
     (Logic App)
     (DevOps Pipeline)    
@@ -32,8 +35,6 @@ Param (
         [String] $PoolType,
         [Parameter(Mandatory=$false)]        
         [String] $SinglePoolName,
-        [Parameter(Mandatory=$false)]
-        [String] $PoolResourceGroupName,
         [Parameter(Mandatory=$true)]        
         [String] $AAResourceGroup =  'MSAA-WVDMgt',
         [Parameter(Mandatory=$true)]        
@@ -62,6 +63,7 @@ $DomainPassword = $AACreds.GetNetworkCredentials().Password
 $DomainPassword1 = (Get-AzKeyVaultSecret -VaultName Image-KeyVault-1 -Name adjoin).SecretValue
 $DomainCreds = New-Object System.Management.Automation.PSCredential ($DomainUserName, $DomainPassword1)
 
+Get-AzVM
 
 ################################
 #    Discover TAG Resources    #
@@ -134,26 +136,22 @@ foreach ($HP in $HPs) {
         }
     }
 }
+
 $ErrorActionPreference = 'Continue'
 
 
-###################################
-#    Generate New HP Reg Token    #
-###################################
-$TokenTime = $((get-date).ToUniversalTime().AddDays(1).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))
-foreach ($HP in $HPs) {
-    $HPName = $HP.Name
-    $HPRG = ($HP.id).Split('/')[4]
-    Write-Output "Generate New Registration Token for Pool - $HPName"    
-    New-AzWvdRegistrationInfo -ResourceGroupName $HPRG -HostPoolName $HPName -ExpirationTime $TokenTime
-    $registrationkey = Get-AzWvdRegistrationInfo -HostpoolName $HPName -ResourceGroupName $HPRG
-    $Token = $registrationkey.Token
 
 
+################################
+# Check for host with sessions #
+################################
+
+#Write Foreach Loop
 
 #########################
-#    Deallocate Hosts   #
+#    Deallocate Hosts    #
 #########################
+
 foreach ($inactiveHost in $inactiveHosts) {
     Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force 
     [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
@@ -177,10 +175,32 @@ foreach ($inactiveHost in $inactiveHosts) {
     Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName $inactiveHost.ResourceGroupName -NoWait
 }
 
+##########################################
+#    Provision New OSDisks from Image    #
+##########################################
+$diskConfig = New-AzDiskConfig `
+   -Location EastUS `
+   -CreateOption FromImage `
+   -GalleryImageReference @{Id = $ImageID}
 
-#########################
-#    Rename Computer    #
-#########################
+New-AzDisk -Disk $diskConfig `
+   -ResourceGroupName $RGName `
+   -DiskName $NewVMName
+
+
+######################
+#    OS Disk Swap    #
+######################
+$vm = Get-AzVM -ResourceGroupName $RGName -Name $VMName
+$disk = Get-AzDisk -ResourceGroupName $RGName -Name $NewVMName
+Set-AzVMOSDisk -VM $vm -ManagedDiskId $disk.Id -Name $disk.Name 
+Update-AzVM -ResourceGroupName $RGName -VM $vm 
+
+
+###################
+#    Start VMs    #
+###################
+Get-AZVM -name $VMName | Start-AzVM
 Invoke-AzVMRunCommand `
     -ResourceGroupName $RGName `
     -Name $VMName `
@@ -236,16 +256,5 @@ Set-AzVMADDomainExtension `
 #######################
 #    Join HostPool    #
 #######################
-Set-AzVMCustomScriptExtension `
-    -ResourceGroupName $RGName `
-    -VMName $VMName `
-    -Location (get-azresourcegroup -name $RGName).location `
-    -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1" `
-    -Run "New-WVDSessionHost.ps1" `
-    -Name AVDImageExtension `
-    -Argument "$FSLogixProfilePath $Token"
-
-
-##########################
-#    Update Image Tag    #
-##########################
+#New-SessionHost
+New-AZVMExtension
