@@ -258,5 +258,14 @@ Set-AzVMADDomainExtension `
 #######################
 #    Join HostPool    #
 #######################
-#New-SessionHost
-New-AZVMExtension
+Set-AzVMCustomScriptExtension `
+    -ResourceGroupName $RGName `
+    -VMName $VMName `
+    -Location (get-azresourcegroup -name $RGName).location `
+    -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1" `
+    -Run "New-WVDSessionHost.ps1" `
+    -Name AVDImageExtension `
+    -Argument "$FSLogixProfilePath $Token"
+
+
+    
