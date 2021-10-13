@@ -6,7 +6,8 @@
     Image Version (Shared Image Gallery)
     Host Pools
     Automation Account
-        Az modules: Az.Accounts, Az.Automation, Az.ManagedServiceIdentity, and Az.Compute imported into the Automation account
+        Az modules: Az.Accounts, Az.Automation, Az.ManagedServiceIdentity, Az.Compute, and Az.DesktopVirtualization 
+        imported into the Automation account
         Manage identity for automation account
         Set fx variables    
     (Logic App)
