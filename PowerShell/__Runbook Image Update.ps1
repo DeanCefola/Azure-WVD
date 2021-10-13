@@ -42,7 +42,7 @@ Param (
         [Parameter(Mandatory=$true)]        
         [String] $AAName = 'MSAA-WVDAutoScale',
         [Parameter(Mandatory=$true)]        
-        [String] $ImageID = '/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/CPC-RG/providers/Microsoft.Compute/galleries/Win365Gallery/images/W365-Ent/versions/21.1.0'        
+        [String] $ImageID = '/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/CPC-RG/providers/Microsoft.Compute/galleries/Win365Gallery/images/W365-Ent/versions/21.1.0'
 )
 
 ################
@@ -145,8 +145,7 @@ foreach ($inactiveHost in $inactiveHosts) {
     [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
     $newDiskCfg = New-AzDiskConfig -Location $inactiveHost.Location -CreateOption FromImage -GalleryImageReference @{Id = $ImageID}
     $newDisk = New-AzDisk -DiskName $newDiskName -Disk $newDiskCfg -ResourceGroupName $InactiveHost.StorageProfile.OsDisk.ManagedDisk.Id.Split("/")[4]
-    
-    $vmStatusCounter = 0
+        $vmStatusCounter = 0
     while ($vmStatusCounter -lt 12)
     {
         $vmStatus = (Get-AzVM -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -Status).Statuses[1].Code.Split("/")[1]
@@ -157,10 +156,9 @@ foreach ($inactiveHost in $inactiveHosts) {
         $vmStatusCounter++
         Start-Sleep -Seconds 5s
     }
-
-    Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id
+    Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id -Name $newDisk.name
     Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
-    Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName $inactiveHost.ResourceGroupName -NoWait
+    Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -Name $inactiveHost.Name -NoWait
 }
 
 
