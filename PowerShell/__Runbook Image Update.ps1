@@ -8,8 +8,7 @@
     Automation Account
         Az modules: Az.Accounts, Az.Automation, Az.ManagedServiceIdentity, and Az.Compute imported into the Automation account
         Manage identity for automation account
-        Set fx variables
-    KeyVault
+        Set fx variables    
     (Logic App)
     (DevOps Pipeline)    
         check you are registered for the providers, ensure RegistrationState is set to 'Registered'.
@@ -62,10 +61,8 @@ $FSLogixProfilePath = (Get-AzAutomationVariable -Name FSLogixPath -resourcegroup
 $AACreds = (Get-AzAutomationCredential Name adjoin -resourcegroupname $AAResourceGroup -AutomationAccountName $AAName)
 $DomainUserName = $AACreds.UserName
 $DomainPassword = $AACreds.GetNetworkCredentials().Password
-$DomainPassword1 = (Get-AzKeyVaultSecret -VaultName Image-KeyVault-1 -Name adjoin).SecretValue
-$DomainCreds = New-Object System.Management.Automation.PSCredential ($DomainUserName, $DomainPassword1)
+$DomainCreds = New-Object System.Management.Automation.PSCredential ($DomainUserName, $DomainPassword)
 
-Get-AzVM
 
 ################################
 #    Discover TAG Resources    #
