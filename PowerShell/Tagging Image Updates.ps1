@@ -20,7 +20,7 @@ Param (
         [String] $FSLogixProfilePath = '\\MSAzureAcademy.com\CorpShares\FSLogix',
         [Parameter(Mandatory=$true)]
         [validateset('Personal','Pooled','Both')]
-        [String] $PoolType
+        [String] $PoolType,
         [Parameter(Mandatory=$true)]
         [validateset('Delete','Save')]
         [String] $DeleteOption
