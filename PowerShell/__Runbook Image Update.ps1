@@ -134,22 +134,12 @@ foreach ($HP in $HPs) {
         }
     }
 }
-
 $ErrorActionPreference = 'Continue'
 
 
-
-
-################################
-# Check for host with sessions #
-################################
-
-#Write Foreach Loop
-
 #########################
-#    Deallocate Hosts    #
+#    Deallocate Hosts   #
 #########################
-
 foreach ($inactiveHost in $inactiveHosts) {
     Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force 
     [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
@@ -172,27 +162,6 @@ foreach ($inactiveHost in $inactiveHosts) {
     Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
     Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName $inactiveHost.ResourceGroupName -NoWait
 }
-
-##########################################
-#    Provision New OSDisks from Image    #
-##########################################
-$diskConfig = New-AzDiskConfig `
-   -Location EastUS `
-   -CreateOption FromImage `
-   -GalleryImageReference @{Id = $ImageID}
-
-New-AzDisk -Disk $diskConfig `
-   -ResourceGroupName $RGName `
-   -DiskName $NewVMName
-
-
-######################
-#    OS Disk Swap    #
-######################
-$vm = Get-AzVM -ResourceGroupName $RGName -Name $VMName
-$disk = Get-AzDisk -ResourceGroupName $RGName -Name $NewVMName
-Set-AzVMOSDisk -VM $vm -ManagedDiskId $disk.Id -Name $disk.Name 
-Update-AzVM -ResourceGroupName $RGName -VM $vm 
 
 
 ###################
