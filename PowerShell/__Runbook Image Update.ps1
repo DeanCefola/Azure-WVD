@@ -36,11 +36,7 @@ Param (
         [Parameter(Mandatory=$false)]        
         [String] $SinglePoolName,
         [Parameter(Mandatory=$false)]        
-        [String] $PoolResourceGroupName,
-        [Parameter(Mandatory=$true)]        
-        [String] $AAResourceGroup =  'MSAA-WVDMgt',
-        [Parameter(Mandatory=$true)]        
-        [String] $AAName = 'MSAA-WVDAutoScale',
+        [String] $PoolResourceGroupName,        
         [Parameter(Mandatory=$true)]        
         [String] $ImageID = '/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/CPC-RG/providers/Microsoft.Compute/galleries/Win365Gallery/images/W365-Ent/versions/21.1.0'
 )
