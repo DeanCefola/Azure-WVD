@@ -5,7 +5,10 @@
     Tags
     Image Version (Shared Image Gallery)
     Host Pools
-    Automation Account        
+    Automation Account
+        Az modules: Az.Accounts, Az.Automation, Az.ManagedServiceIdentity, and Az.Compute imported into the Automation account
+        Manage identity for automation account
+        Set fx variables
     KeyVault
     (Logic App)
     (DevOps Pipeline)    
