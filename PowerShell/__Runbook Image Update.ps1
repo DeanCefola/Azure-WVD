@@ -1,4 +1,4 @@
-﻿################
+################
 #    Prereqs   #
 ################
 <#
@@ -152,6 +152,51 @@ foreach ($HP in $HPs) {
 $ErrorActionPreference = 'Continue'
 
 
+###################################
+#    Generate New HP Reg Token    #
+###################################
+$TokenTime = $((get-date).ToUniversalTime().AddDays(1).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))
+foreach ($HP in $HPs) {
+    $HPName = $HP.Name
+    $HPRG = ($HP.id).Split('/')[4]
+    Write-Host `
+        -BackgroundColor Black `
+        -ForegroundColor Magenta `
+        "Generate New Registration Token for Pool - $HPName"    
+    New-AzWvdRegistrationInfo -ResourceGroupName $HPRG -HostPoolName $HPName -ExpirationTime $TokenTime
+    $registrationkey = Get-AzWvdRegistrationInfo -HostpoolName $HPName -ResourceGroupName $HPRG
+    $Token = $registrationkey.Token
+}
+
+#Write Foreach Loop
+
+########################################
+#    Check for Active User Sessions    #
+########################################
+##################################################################################################
+#    Pause to allow time for users to log off Hosts                                              #
+#NOTE:  This pause should accomadate the users log out time                                      #
+#       Consider your Group Policies as well for Idle, Disconnect, timeouts, screen locks etc.   #
+##################################################################################################
+#Track VMs with 2 lists 
+#Those you have drained and completed and those in progress
+#add Testing switch to force users to log off
+$UserSessions = Get-AzWvdUserSession `
+    -HostPoolName $HPName `
+    -ResourceGroupName $HPRG `
+    -SessionHostName $sessionHost.Name.Split('/')[1]
+if (($UserSessions) -eq $true) {
+    Wait-Event -Timeout 120
+    Write-Output "Waiting"
+}
+else {
+Write-Output "Doing"
+}
+$WaitTime = 120
+do {
+    $WaitTime
+} until ($UserSessions -eq $true)
+
 #Write Foreach Loop
 
 #########################
@@ -176,6 +221,17 @@ New-AzDisk -Disk $diskConfig `
    -DiskName $NewVMName
 
 
+#########################
+#    Rename Computer    #
+#########################
+Invoke-AzVMRunCommand `
+    -ResourceGroupName $RGName `
+    -Name $VMName `
+    -CommandId 'RunPowerShellScript' `
+    -ScriptPath 'https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/RenameComputer.ps1' `
+    -Parameter @{"VMName" = "$VMName"}
+
+
 ######################
 #    OS Disk Swap    #
 ######################
@@ -189,19 +245,27 @@ Update-AzVM -ResourceGroupName $RGName -VM $vm
 #    Start VMs    #
 ###################
 Get-AZVM -name $VMName | Start-AzVM
-Invoke-AzVMRunCommand `
-    -ResourceGroupName $RGName -Name $VMName -CommandId 'RunPowerShellScript' -ScriptPath '<pathToScript>' -Parameter @{"arg1" = "var1";"arg2" = "var2"}
-rename-computer 
+
 
 ######################################
 #    Remove Join Domain Extension    #
 ######################################
-Remove-AzVMExtension -name joindomain -VMName $VMName -ResourceGroupName $RGName -Force -Verbose
+(get-AzVMExtension `
+    -ResourceGroupName $RGName `
+    -VMName $VMName) | `
+    Where-Object `
+        -Property Name `
+        -match domain | `
+        Remove-AzVMExtension `
+            -Force `
+            -Verbose
+
 
 #####################
 #    Join Domain    #
 #####################
 Set-AzVMADDomainExtension `
+    -TypeHandlerVersion 1.3 `
     -DomainName $DomainFQDN `
     -VMName $VMName `
     -ResourceGroupName $RGName `
@@ -211,14 +275,31 @@ Set-AzVMADDomainExtension `
     -Restart `
     -Verbose
 
-   
+
+########################################
+#    Remove Custom Script Extension    #
+########################################
+(get-AzVMExtension `
+    -ResourceGroupName $RGName `
+    -VMName $VMName) | `
+    Where-Object `
+        -Property ExtensionType `
+        -match CustomScriptExtension | `
+        Remove-AzVMExtension `
+            -Force `
+            -Verbose
+
 
 #######################
 #    Join HostPool    #
 #######################
-#New-SessionHost
-New-AZVMExtension 
-
-
+Set-AzVMCustomScriptExtension `
+    -ResourceGroupName $RGName `
+    -VMName $VMName `
+    -Location (get-azresourcegroup -name $RGName).location `
+    -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1" `
+    -Run "New-WVDSessionHost.ps1" `
+    -Name AVDImageExtension `
+    -Argument "$FSLogixProfilePath $Token"
 
 
