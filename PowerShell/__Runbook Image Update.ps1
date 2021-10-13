@@ -198,7 +198,7 @@ Update-AzVM -ResourceGroupName $RGName -VM $vm
 
 
 ###################
-#    Start VMs    #
+#    Rename VMs    #
 ###################
 Get-AZVM -name $VMName | Start-AzVM
 Invoke-AzVMRunCommand `
