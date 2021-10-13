@@ -202,7 +202,7 @@ Set-AzVMCustomScriptExtension `
     -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/RenameComputer.ps1" `
     -Run "RenameComputer.ps1" `
     -Name RenameVMExtension `
-    -Argument "$inactiveHost.name"
+    -Argument $inactiveHost.name
 
 
 ########################################
