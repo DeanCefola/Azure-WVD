@@ -114,7 +114,7 @@ foreach ($HP in $HPs) {
         foreach ($sessionHost in $AllSessionHosts | Where-Object {$_.ResourceId -eq $vm.Id}) {
             $userSessions = Get-AzWvdUserSession -ResourceGroupName $HPRG -HostPoolName $HP -SessionHostName $sessionHost.Name.Split('/')[1]
             if ($null -eq $userSessions)  {
-                $InactiveHosts += $vm
+                $InactiveHosts += Get-AzVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName
             }
             if ($sessionHost.Name -match $HPName) {
             $sessionHostName = $sessionHost.Name
