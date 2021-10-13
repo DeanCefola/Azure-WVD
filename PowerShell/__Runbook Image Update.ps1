@@ -162,39 +162,55 @@ foreach ($inactiveHost in $inactiveHosts) {
 }
 
 
-###################
-#    Rename VMs    #
-###################
-Get-AZVM -name $VMName | Start-AzVM
-Invoke-AzVMRunCommand `
-    -ResourceGroupName $RGName `
-    -Name $VMName `
-    -CommandId 'RunPowerShellScript' `
-    -ScriptPath 'https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/RenameComputer.ps1' `
-    -Parameter @{"VMName" = "$VMName"}
-
-
 ######################################
 #    Remove Join Domain Extension    #
 ######################################
 (get-AzVMExtension `
-    -ResourceGroupName $RGName `
-    -VMName $VMName) | `
+    -ResourceGroupName $inactiveHost.ResourceGroupName `
+    -VMName $inactiveHost.name) | `
     Where-Object `
         -Property Name `
         -match domain | `
         Remove-AzVMExtension `
             -Force `
-            -Verbose
-
+            -ErrorAction SilentlyContinue `
+            -Verbose 
 
 
 ########################################
 #    Remove Custom Script Extension    #
 ########################################
 (get-AzVMExtension `
-    -ResourceGroupName $RGName `
-    -VMName $VMName) | `
+    -ResourceGroupName $inactiveHost.ResourceGroupName `
+    -VMName $inactiveHost.name) | `
+    Where-Object `
+        -Property ExtensionType `
+        -match CustomScriptExtension | `
+        Remove-AzVMExtension `
+            -Force `
+            -ErrorAction SilentlyContinue `
+            -Verbose 
+
+
+###################
+#    Rename VMs    #
+###################
+Set-AzVMCustomScriptExtension `
+    -ResourceGroupName $inactiveHost.ResourceGroupName `
+    -VMName $inactiveHost.name `
+    -Location (get-azresourcegroup -name $inactiveHost.ResourceGroupName).location `
+    -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/RenameComputer.ps1" `
+    -Run "RenameComputer.ps1" `
+    -Name RenameVMExtension `
+    -Argument "$inactiveHost.name"
+
+
+########################################
+#    Remove Custom Script Extension    #
+########################################
+(get-AzVMExtension `
+    -ResourceGroupName $inactiveHost.ResourceGroupName `
+    -VMName $inactiveHost.name) | `
     Where-Object `
         -Property ExtensionType `
         -match CustomScriptExtension | `
@@ -209,22 +225,22 @@ Invoke-AzVMRunCommand `
 Set-AzVMADDomainExtension `
     -TypeHandlerVersion 1.3 `
     -DomainName $DomainFQDN `
-    -VMName $VMName `
-    -ResourceGroupName $RGName `
-    -Location (get-azresourcegroup -name $RGName).location `
+    -VMName $inactiveHost.name `
+    -ResourceGroupName $inactiveHost.ResourceGroupName `
+    -Location (get-azresourcegroup -name $inactiveHost.ResourceGroupName).location `
     -Credential $DomainCreds `
     -JoinOption "0x00000003" `
     -Restart `
     -Verbose
 
 
-#######################
-#    Join HostPool    #
-#######################
+###############################################
+#    Join HostPool Custom Script Extension    #
+###############################################
 Set-AzVMCustomScriptExtension `
-    -ResourceGroupName $RGName `
-    -VMName $VMName `
-    -Location (get-azresourcegroup -name $RGName).location `
+    -ResourceGroupName $inactiveHost.ResourceGroupName `
+    -VMName $inactiveHost.name `
+    -Location (get-azresourcegroup -name $inactiveHost.ResourceGroupName).location `
     -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/New-WVDSessionHost.ps1" `
     -Run "New-WVDSessionHost.ps1" `
     -Name AVDImageExtension `
