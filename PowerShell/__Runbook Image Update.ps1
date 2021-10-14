@@ -38,7 +38,7 @@ Param (
         [Parameter(Mandatory=$false)]        
         [String] $PoolResourceGroupName,        
         [Parameter(Mandatory=$true)]        
-        [String] $ImageID = '/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/CPC-RG/providers/Microsoft.Compute/galleries/Win365Gallery/images/W365-Ent/versions/21.1.0'
+        [String] $ImageID = '/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/rg-wth-aib-d-eus/providers/Microsoft.Compute/galleries/aibgallery01/images/win10wvd/versions/0.24935.25718'
 )
 
 ################
@@ -94,6 +94,13 @@ switch ($PoolType) {
 }
 
 
+################################################
+#    Create Temp Resource Group for Imaging    #
+################################################
+$TempRG = New-AzResourceGroup -Location $inactiveHost.Location -Name AVDImaging-Temp
+$TempSubnetCfg = New-AzVirtualNetworkSubnetConfig -Name Default -AddressPrefix "10.0.0.0/24"
+$TempVNET = New-AzVirtualNetwork -Name AVDImaging-Temp -ResourceGroupName $TempRG.ResourceGroupName -Location $TempRG.Location -AddressPrefix "10.0.0.0/16" -Subnet $TempSubnetCfg
+
 ################################
 #    Set Hosts to Drain Mode   #
 ################################
@@ -136,17 +143,63 @@ $ErrorActionPreference = 'Continue'
 #########################
 #    Deallocate Hosts   #
 #########################
+## Drain Mode 
+## Deallocate 
+## Provision Temp Resource Group 
+# Provision New Host with same name from Generalized Image into Temp RG  (Disks in Original RG)
+# Delete Temp VMs 
+# OS Disk Swap 
+# Power On
+# Provision New Extensions 
+
 foreach ($inactiveHost in $inactiveHosts) {
     Write-Output "Stopping Host "$InactiveHost.Name
     Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force
     Write-Output "Spawn New Disk From Image for Host "$InactiveHost.Name
     [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
+   $TempNicName = $inactiveHost.Name+"-nic"  
+    $nic = New-AzNetworkInterface `
+        -Name $TempNicName `
+        -ResourceGroupName $TempRG.ResourceGroupName `
+        -Location $inactiveHost.Location `
+        -SubnetId $TempVNET.Subnets[0].Id
+    $vmConfig = New-AzVMConfig `
+    -VMName $inactiveHost.name `
+    -VMSize $inactiveHost.HardwareProfile.VmSize `
+    | Set-AzVMOperatingSystem `
+            -Windows `
+            -ComputerName $inactiveHost.name `
+            -Credential $cred `
+            | Set-AzVMSourceImage -Id $ImageID `
+            | Add-AzVMNetworkInterface -Id $nic.Id 
+    Set-AzVMOSDisk `
+        -VM $vmConfig `
+        -Name $newDiskName `
+        -Caching ReadWrite `
+        -Windows `
+        -DiskSizeInGB 127 `
+        -CreateOption FromImage
+    $newDiskCfg = New-AzDiskConfig `
+        -Location $inactiveHost.Location `
+        -CreateOption FromImage `
+        -GalleryImageReference @{Id = $ImageID} `
+        -SkuName  Premium_LRS `
+        -OsType Windows `
+        -DiskSizeGB 127
+    New-AzVM `
+        -ResourceGroupName $TempRG.ResourceGroupName `
+        -Location $inactiveHost.Location `
+        -VM $vmConfig    
+
+
+
+
+
     $newDiskCfg = New-AzDiskConfig -Location $inactiveHost.Location -CreateOption FromImage -GalleryImageReference @{Id = $ImageID} -SkuName  Premium_LRS -OsType Windows -DiskSizeGB 127
     $newDisk = New-AzDisk -DiskName $newDiskName -Disk $newDiskCfg -ResourceGroupName $InactiveHost.StorageProfile.OsDisk.ManagedDisk.Id.Split("/")[4]
     Write-Output "Check Host Status for Host "$InactiveHost.Name
         $vmStatusCounter = 0
-    while ($vmStatusCounter -lt 12)
-    {
+    while ($vmStatusCounter -lt 12) {
         $vmStatus = (Get-AzVM -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -Status).Statuses[1].Code.Split("/")[1]
         if ($vmStatus -eq "deallocated")
         {
@@ -155,15 +208,16 @@ foreach ($inactiveHost in $inactiveHosts) {
         $vmStatusCounter++
         Start-Sleep -Seconds 5
     }
-    Write-Output "OS Disk Swap on Host "$InactiveHost.Name
+    Write-Output "OS Disk Swap on Host " $InactiveHost.Name
     Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id -Name $newDisk.name -Caching ReadWrite -Windows -DiskSizeInGB 127
-    Write-Output "Update VM Host "$InactiveHost.Name
+    Write-Output "Update VM Host " $InactiveHost.Name
     Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
-    Write-Output "Start Host "$InactiveHost.Name
+    Write-Output "Start Host " $InactiveHost.Name
     Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -Name $inactiveHost.Name -NoWait
+    Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
 }
 
-
+<#
 ######################################
 #    Remove Join Domain Extension    #
 ######################################
@@ -219,7 +273,7 @@ Set-AzVMCustomScriptExtension `
         Remove-AzVMExtension `
             -Force `
             -Verbose
-
+#>
 
 #####################
 #    Join Domain    #
@@ -249,4 +303,9 @@ Set-AzVMCustomScriptExtension `
     -Argument "$FSLogixProfilePath $Token"
 
 
-    
+##################
+#    Clean Up    #
+##################
+Remove-AzResourceGroup -Name $TempRG.ResourceGroupName -Force -Verbose
+
+
