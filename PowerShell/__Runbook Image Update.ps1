@@ -101,6 +101,7 @@ $TempRG = New-AzResourceGroup -Location $inactiveHost.Location -Name AVDImaging-
 $TempSubnetCfg = New-AzVirtualNetworkSubnetConfig -Name Default -AddressPrefix "10.0.0.0/24"
 $TempVNET = New-AzVirtualNetwork -Name AVDImaging-Temp -ResourceGroupName $TempRG.ResourceGroupName -Location $TempRG.Location -AddressPrefix "10.0.0.0/16" -Subnet $TempSubnetCfg
 
+
 ################################
 #    Set Hosts to Drain Mode   #
 ################################
@@ -230,63 +231,6 @@ foreach ($inactiveHost in $inactiveHosts) {
     #Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
 }
 
-<#
-######################################
-#    Remove Join Domain Extension    #
-######################################
-(get-AzVMExtension `
-    -ResourceGroupName $inactiveHost.ResourceGroupName `
-    -VMName $inactiveHost.name) | `
-    Where-Object `
-        -Property Name `
-        -match domain | `
-        Remove-AzVMExtension `
-            -Force `
-            -ErrorAction SilentlyContinue `
-            -Verbose 
-
-
-########################################
-#    Remove Custom Script Extension    #
-########################################
-(get-AzVMExtension `
-    -ResourceGroupName $inactiveHost.ResourceGroupName `
-    -VMName $inactiveHost.name) | `
-    Where-Object `
-        -Property ExtensionType `
-        -match CustomScriptExtension | `
-        Remove-AzVMExtension `
-            -Force `
-            -ErrorAction SilentlyContinue `
-            -Verbose 
-
-
-###################
-#    Rename VMs    #
-###################
-Set-AzVMCustomScriptExtension `
-    -ResourceGroupName $inactiveHost.ResourceGroupName `
-    -VMName $inactiveHost.name `
-    -Location (get-azresourcegroup -name $inactiveHost.ResourceGroupName).location `
-    -FileUri "https://raw.githubusercontent.com/DeanCefola/Azure-WVD/master/PowerShell/RenameComputer.ps1" `
-    -Run "RenameComputer.ps1" `
-    -Name RenameVMExtension `
-    -Argument $inactiveHost.name
-
-
-########################################
-#    Remove Custom Script Extension    #
-########################################
-(get-AzVMExtension `
-    -ResourceGroupName $inactiveHost.ResourceGroupName `
-    -VMName $inactiveHost.name) | `
-    Where-Object `
-        -Property ExtensionType `
-        -match CustomScriptExtension | `
-        Remove-AzVMExtension `
-            -Force `
-            -Verbose
-#>
 
 #####################
 #    Join Domain    #
