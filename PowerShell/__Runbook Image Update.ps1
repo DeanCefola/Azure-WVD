@@ -143,15 +143,6 @@ $ErrorActionPreference = 'Continue'
 #########################
 #    Deallocate Hosts   #
 #########################
-## Drain Mode 
-## Deallocate 
-## Provision Temp Resource Group 
-# Provision New Host with same name from Generalized Image into Temp RG  (Disks in Original RG)
-# Delete Temp VMs 
-# OS Disk Swap 
-# Power On
-# Provision New Extensions 
-
 foreach ($inactiveHost in $inactiveHosts) {
     Write-Output "Stopping Host "$InactiveHost.Name
     Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force
@@ -190,13 +181,35 @@ foreach ($inactiveHost in $inactiveHosts) {
         -ResourceGroupName $TempRG.ResourceGroupName `
         -Location $inactiveHost.Location `
         -VM $vmConfig    
-
-
-
-
-
-    $newDiskCfg = New-AzDiskConfig -Location $inactiveHost.Location -CreateOption FromImage -GalleryImageReference @{Id = $ImageID} -SkuName  Premium_LRS -OsType Windows -DiskSizeGB 127
-    $newDisk = New-AzDisk -DiskName $newDiskName -Disk $newDiskCfg -ResourceGroupName $InactiveHost.StorageProfile.OsDisk.ManagedDisk.Id.Split("/")[4]
+    Stop-AzVm `
+        -Name $inactiveHost.Name `
+        -ResourceGroupName $TempRG.ResourceGroupName `
+        -NoWait `
+        -Force
+    $NewSnapName = $InactiveHost.name+"-Snap"
+    $SnapShotCfg = New-AzSnapshotConfig `
+        -SkuName Premium_LRS `
+        -OsType Windows `
+        -DiskSizeGB $inactiveHost.StorageProfile.OsDisk.DiskSizeGB `
+        -Location $inactiveHost.Location `
+        -CreateOption  Copy `
+        -SourceUri (Get-AzVM -ResourceGroupName $temprg.ResourceGroupName -Name $inactiveHost.Name).StorageProfile.OsDisk.ManagedDisk.Id
+    $Snap = New-AzSnapshot `
+        -ResourceGroupName $temprg.ResourceGroupName `
+        -SnapshotName $NewSnapName `
+        -Snapshot $SnapShotCfg `
+        -Verbose
+    $newDiskCfg = New-AzDiskConfig `
+        -Location $inactiveHost.Location `
+        -CreateOption Copy `
+        -SkuName  Premium_LRS `
+        -OsType Windows `
+        -DiskSizeGB 127 `
+        -SourceResourceId $Snap.Id
+    $newDisk = New-AzDisk `
+        -DiskName $newDiskName `
+        -Disk $newDiskCfg `
+        -ResourceGroupName $InactiveHost.ResourceGroupName
     Write-Output "Check Host Status for Host "$InactiveHost.Name
         $vmStatusCounter = 0
     while ($vmStatusCounter -lt 12) {
@@ -214,7 +227,7 @@ foreach ($inactiveHost in $inactiveHosts) {
     Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
     Write-Output "Start Host " $InactiveHost.Name
     Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -Name $inactiveHost.Name -NoWait
-    Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
+    #Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
 }
 
 <#
