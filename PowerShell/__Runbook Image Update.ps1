@@ -139,7 +139,7 @@ $ErrorActionPreference = 'Continue'
 foreach ($inactiveHost in $inactiveHosts) {
     Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force 
     [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
-    $newDiskCfg = New-AzDiskConfig -Location $inactiveHost.Location -CreateOption FromImage -GalleryImageReference @{Id = $ImageID}
+    $newDiskCfg = New-AzDiskConfig -Location $inactiveHost.Location -CreateOption FromImage -GalleryImageReference @{Id = $ImageID} -SkuName  Premium_LRS -OsType Windows
     $newDisk = New-AzDisk -DiskName $newDiskName -Disk $newDiskCfg -ResourceGroupName $InactiveHost.StorageProfile.OsDisk.ManagedDisk.Id.Split("/")[4]
         $vmStatusCounter = 0
     while ($vmStatusCounter -lt 12)
@@ -152,7 +152,7 @@ foreach ($inactiveHost in $inactiveHosts) {
         $vmStatusCounter++
         Start-Sleep -Seconds 5
     }
-    Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id -Name $newDisk.name -StorageAccountType  Premium_LRS -Caching ReadWrite
+    Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id -Name $newDisk.name -Caching ReadWrite -Windows
     Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
     Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -Name $inactiveHost.Name -NoWait
 }
