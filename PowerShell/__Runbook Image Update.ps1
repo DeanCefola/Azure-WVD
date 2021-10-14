@@ -150,9 +150,9 @@ foreach ($inactiveHost in $inactiveHosts) {
             break
         }
         $vmStatusCounter++
-        Start-Sleep -Seconds 5s
+        Start-Sleep -Seconds 5
     }
-    Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id -Name $newDisk.name
+    Set-AzVMOSDisk -VM $inactiveHost -ManagedDiskId $newDisk.Id -Name $newDisk.name -StorageAccountType  Premium_LRS -Caching ReadWrite
     Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
     Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -Name $inactiveHost.Name -NoWait
 }
