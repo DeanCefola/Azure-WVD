@@ -152,7 +152,7 @@ $ErrorActionPreference = 'Continue'
 Write-Output "Create Temp Resources for Updating"
 $TempRG = New-AzResourceGroup `
     -Location $inactiveHost.Location `
-    -Name AVDImaging-Temp
+    -Name "AVDImaging-Temp"
 Write-Output "Temp Resource Group Created"
 $TempSubnetCfg = New-AzVirtualNetworkSubnetConfig `
     -Name Default `
