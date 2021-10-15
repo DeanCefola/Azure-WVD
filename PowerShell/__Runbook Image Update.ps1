@@ -58,6 +58,16 @@ $FSLogixProfilePath = Get-AutomationVariable -Name 'FSLogixPath'
 $AACreds = (Get-AutomationPSCredential -Name 'adjoin')
 $DomainCreds = New-Object System.Management.Automation.PSCredential ($AACreds.UserName, $AACreds.Password)
 
+#    PowerShell Testing Variables    #
+        $DomainFQDN = 'MSAzureAcademy.com'
+        $FSLogixProfilePath = '\\MSAzureAcademy.com\CorpShares\FSLogix'
+        $AACreds = Get-Credential -Message "Enter AD Creds" -UserName adjoin@MSAzureAcademy.com 
+        $LocalCredsUsername = $AACreds.UserName.Split('@')[0]
+        $LocalCredsPassword = Get-Credential -Message "Enter AD Creds" -UserName $LocalCredsUsername
+        $Creds = New-Object System.Management.Automation.PSCredential ($LocalCredsUsername, $LocalCredsPassword.Password)       
+        $DomainCreds = New-Object System.Management.Automation.PSCredential ($AACreds.UserName, $AACreds.Password)
+#    PowerShell Testing Variables    #
+
 
 ################################
 #    Discover TAG Resources    #
@@ -92,14 +102,6 @@ switch ($PoolType) {
         $HPs = Get-AzWvdHostPool -name $SinglePoolName -ResourceGroupName $PoolResourceGroupName
     }
 }
-
-
-################################################
-#    Create Temp Resource Group for Imaging    #
-################################################
-$TempRG = New-AzResourceGroup -Location $inactiveHost.Location -Name AVDImaging-Temp
-$TempSubnetCfg = New-AzVirtualNetworkSubnetConfig -Name Default -AddressPrefix "10.0.0.0/24"
-$TempVNET = New-AzVirtualNetwork -Name AVDImaging-Temp -ResourceGroupName $TempRG.ResourceGroupName -Location $TempRG.Location -AddressPrefix "10.0.0.0/16" -Subnet $TempSubnetCfg
 
 
 ################################
@@ -141,6 +143,24 @@ foreach ($HP in $HPs) {
 $ErrorActionPreference = 'Continue'
 
 
+
+################################################
+#    Create Temp Resource Group for Imaging    #
+################################################
+$TempRG = New-AzResourceGroup `
+    -Location $inactiveHost.Location `
+    -Name AVDImaging-Temp
+$TempSubnetCfg = New-AzVirtualNetworkSubnetConfig `
+    -Name Default `
+    -AddressPrefix "10.0.0.0/24"
+$TempVNET = New-AzVirtualNetwork `
+    -Name AVDImaging-Temp `
+    -ResourceGroupName $TempRG.ResourceGroupName `
+    -Location $TempRG.Location `
+    -AddressPrefix "10.0.0.0/16" `
+    -Subnet $TempSubnetCfg
+    
+    
 #########################
 #    Deallocate Hosts   #
 #########################
@@ -161,7 +181,7 @@ foreach ($inactiveHost in $inactiveHosts) {
     | Set-AzVMOperatingSystem `
             -Windows `
             -ComputerName $inactiveHost.name `
-            -Credential $cred `
+            -Credential $Creds `
             | Set-AzVMSourceImage -Id $ImageID `
             | Add-AzVMNetworkInterface -Id $nic.Id 
     Set-AzVMOSDisk `
@@ -191,13 +211,12 @@ foreach ($inactiveHost in $inactiveHosts) {
     $SnapShotCfg = New-AzSnapshotConfig `
         -SkuName Premium_LRS `
         -OsType Windows `
-        -DiskSizeGB $inactiveHost.StorageProfile.OsDisk.DiskSizeGB `
         -Location $inactiveHost.Location `
         -CreateOption  Copy `
         -SourceUri (Get-AzVM -ResourceGroupName $temprg.ResourceGroupName -Name $inactiveHost.Name).StorageProfile.OsDisk.ManagedDisk.Id
     $Snap = New-AzSnapshot `
         -ResourceGroupName $temprg.ResourceGroupName `
-        -SnapshotName $NewSnapName `
+        -SnapshotName '$NewSnapName' `
         -Snapshot $SnapShotCfg `
         -Verbose
     $newDiskCfg = New-AzDiskConfig `
