@@ -272,7 +272,7 @@ Set-AzVMADDomainExtension `
     -DomainName $DomainFQDN `
     -VMName $inactiveHost.name `
     -ResourceGroupName $inactiveHost.ResourceGroupName `
-    -Location (get-azresourcegroup -name $inactiveHost.ResourceGroupName).location `
+    -Location $inactiveHost.Location `
     -Credential $DomainCreds `
     -JoinOption "0x00000003" `
     -Restart `
