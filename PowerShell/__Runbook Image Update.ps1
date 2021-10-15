@@ -226,7 +226,7 @@ Write-Output "Create Snapshot for Host " $InactiveHosts.Name
         -SourceUri (Get-AzVM -ResourceGroupName $temprg.ResourceGroupName -Name $inactiveHost.Name).StorageProfile.OsDisk.ManagedDisk.Id
     $Snap = New-AzSnapshot `
         -ResourceGroupName $temprg.ResourceGroupName `
-        -SnapshotName '$NewSnapName' `
+        -SnapshotName $NewSnapName `
         -Snapshot $SnapShotCfg `
         -Verbose
 Write-Output "Create Updated Disk for Host " $InactiveHosts.Name
