@@ -72,6 +72,7 @@ $DomainCreds = New-Object System.Management.Automation.PSCredential ($AACreds.Us
 ################################
 #    Discover TAG Resources    #
 ################################
+Write-Output "Discover all resources with the TAG $TagName with a Value of $TagValue"
 $Alls = Get-AzResource -TagName $TagName -TagValue $TagValue
 $VMs = Get-AzResource -TagName $TagName -TagValue $TagValue `
     | Where-Object -Property ResourceType -EQ Microsoft.Compute/virtualMachines
@@ -107,6 +108,7 @@ switch ($PoolType) {
 ################################
 #    Set Hosts to Drain Mode   #
 ################################
+Write-Output "Start Drain Mode Tasks"
 $InactiveHosts = @()
 $ErrorActionPreference = 'SilentlyContinue'
 foreach ($HP in $HPs) {
@@ -147,9 +149,11 @@ $ErrorActionPreference = 'Continue'
 ################################################
 #    Create Temp Resource Group for Imaging    #
 ################################################
+Write-Output "Create Temp Resources for Updating"
 $TempRG = New-AzResourceGroup `
     -Location $inactiveHost.Location `
     -Name AVDImaging-Temp
+Write-Output "Temp Resource Group Created"
 $TempSubnetCfg = New-AzVirtualNetworkSubnetConfig `
     -Name Default `
     -AddressPrefix "10.0.0.0/24"
@@ -159,16 +163,19 @@ $TempVNET = New-AzVirtualNetwork `
     -Location $TempRG.Location `
     -AddressPrefix "10.0.0.0/16" `
     -Subnet $TempSubnetCfg
-    
-    
+Write-Output "Temp Virtual Network Created"
+
+
 #########################
 #    Deallocate Hosts   #
 #########################
+Write-Output "Start Host Upgrade Process"
 foreach ($inactiveHost in $inactiveHosts) {
     Write-Output "Stopping Host "$InactiveHost.Name
     Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force
     Write-Output "Spawn New Disk From Image for Host "$InactiveHost.Name
     [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
+Write-Output "Create Temp NIC for Host " $InactiveHosts.Name
    $TempNicName = $inactiveHost.Name+"-nic"  
     $nic = New-AzNetworkInterface `
         -Name $TempNicName `
@@ -198,15 +205,18 @@ foreach ($inactiveHost in $inactiveHosts) {
         -SkuName  Premium_LRS `
         -OsType Windows `
         -DiskSizeGB 127
+Write-Output "Create Temp VM for Host " $InactiveHosts.Name
     New-AzVM `
         -ResourceGroupName $TempRG.ResourceGroupName `
         -Location $inactiveHost.Location `
         -VM $vmConfig    
+Write-Output "Deallocate Temp Host " $InactiveHosts.Name
     Stop-AzVm `
         -Name $inactiveHost.Name `
         -ResourceGroupName $TempRG.ResourceGroupName `
         -NoWait `
         -Force
+Write-Output "Create Snapshot for Host " $InactiveHosts.Name
     $NewSnapName = $InactiveHost.name+"-Snap"
     $SnapShotCfg = New-AzSnapshotConfig `
         -SkuName Premium_LRS `
@@ -219,6 +229,7 @@ foreach ($inactiveHost in $inactiveHosts) {
         -SnapshotName '$NewSnapName' `
         -Snapshot $SnapShotCfg `
         -Verbose
+Write-Output "Create Updated Disk for Host " $InactiveHosts.Name
     $newDiskCfg = New-AzDiskConfig `
         -Location $inactiveHost.Location `
         -CreateOption Copy `
@@ -230,7 +241,7 @@ foreach ($inactiveHost in $inactiveHosts) {
         -DiskName $newDiskName `
         -Disk $newDiskCfg `
         -ResourceGroupName $InactiveHost.ResourceGroupName
-    Write-Output "Check Host Status for Host "$InactiveHost.Name
+    Write-Output "Verify Host is deallocated " $InactiveHost.Name
         $vmStatusCounter = 0
     while ($vmStatusCounter -lt 12) {
         $vmStatus = (Get-AzVM -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -Status).Statuses[1].Code.Split("/")[1]
@@ -247,6 +258,7 @@ foreach ($inactiveHost in $inactiveHosts) {
     Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
     Write-Output "Start Host " $InactiveHost.Name
     Start-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -Name $inactiveHost.Name -NoWait
+Write-Output "Upgrade of Host is complete " $InactiveHosts.Name
     #Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
 }
 
@@ -254,6 +266,7 @@ foreach ($inactiveHost in $inactiveHosts) {
 #####################
 #    Join Domain    #
 #####################
+Write-Output "Start Domain Join for Host " $InactiveHosts.Name
 Set-AzVMADDomainExtension `
     -TypeHandlerVersion 1.3 `
     -DomainName $DomainFQDN `
@@ -269,6 +282,7 @@ Set-AzVMADDomainExtension `
 ###############################################
 #    Join HostPool Custom Script Extension    #
 ###############################################
+Write-Output "Start AVD Tasks for Host " $InactiveHosts.Name
 Set-AzVMCustomScriptExtension `
     -ResourceGroupName $inactiveHost.ResourceGroupName `
     -VMName $inactiveHost.name `
@@ -279,9 +293,19 @@ Set-AzVMCustomScriptExtension `
     -Argument "$FSLogixProfilePath $Token"
 
 
+#####################
+#    Update Tags    #
+#####################
+$NewTagValue = (get-date).datetime.split(',')[1].split(' ')[1]
+$replacedTags = @{$TagName=$NewTagValue}
+Write-Output "Update Tag $TagName Value to $NewTagValue for Host" $InactiveHosts.Name
+Update-AzTag -ResourceId $InactiveHost.Id -Tag $replacedTags -Operation Replace
+
+
 ##################
 #    Clean Up    #
 ##################
+Write-Output "All Processes Complete, Remove all Temp Resources"
 Remove-AzResourceGroup -Name $TempRG.ResourceGroupName -Force -Verbose
 
 
