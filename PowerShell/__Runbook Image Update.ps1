@@ -323,18 +323,16 @@ foreach ($InactiveHost in $InactiveHosts) {
                 }
             }               
         }
-    }
+    }    
+    #####################
+    #    Update Tags    #
+    #####################
+    $NewTagValue = (get-date).datetime.split(',')[1].split(' ')[1]
+    $replacedTags = @{$TagName=$NewTagValue}
+    Write-Output "Update Tag $TagName Value to $NewTagValue for Host" $InactiveHosts.Name
+    Update-AzTag -ResourceId $InactiveHost.Id -Tag $replacedTags -Operation Replace
 }
 $ErrorActionPreference = 'Continue'
-
-
-#####################
-#    Update Tags    #
-#####################
-$NewTagValue = (get-date).datetime.split(',')[1].split(' ')[1]
-$replacedTags = @{$TagName=$NewTagValue}
-Write-Output "Update Tag $TagName Value to $NewTagValue for Host" $InactiveHosts.Name
-Update-AzTag -ResourceId $InactiveHost.Id -Tag $replacedTags -Operation Replace
 
 
 ##################
