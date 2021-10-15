@@ -293,6 +293,41 @@ Set-AzVMCustomScriptExtension `
     -Argument "$FSLogixProfilePath $Token"
 
 
+####################################
+#    Set Hosts to Available Mode   #
+####################################
+Write-Output "Start Available Mode Tasks"
+$ErrorActionPreference = 'SilentlyContinue'
+foreach ($InactiveHost in $InactiveHosts) {
+    $HPName = $HP.Name
+    $HPRG = ($HP.id).Split('/')[4]
+    Write-Output "Checking $HPName"
+    $AllSessionHosts = Get-AzWvdSessionHost `
+        -HostPoolName $HPName `
+        -ResourceGroupName $HPRG
+    foreach ($vm in $VMs) {
+        foreach ($sessionHost in $AllSessionHosts | Where-Object {$_.ResourceId -eq $vm.Id}) {            
+            if ($sessionHost.Name -match $HPName) {
+            $sessionHostName = $sessionHost.Name
+                Write-Output "Session Host $sessionHostName FOUND in $HPName"
+                If (($SessionHost.AllowNewSession) -eq $false) {
+                    Write-Output "Enabling Available Mode on Host $sessionHostName"
+                    Update-AzWvdSessionHost `
+                        -ResourceGroupName $HPRG `
+                        -HostPoolName $HPName `
+                        -Name $sessionHost.Name.Split('/')[1] `
+                        -AllowNewSession:$true
+                }
+                else {
+                    Write-Output "Available Mode Already On for $sessionHostName"
+                }
+            }               
+        }
+    }
+}
+$ErrorActionPreference = 'Continue'
+
+
 #####################
 #    Update Tags    #
 #####################
