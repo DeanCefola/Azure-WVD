@@ -99,7 +99,7 @@ switch ($PoolType) {
         $HPs = Get-AzWvdHostPool
     }
     Single {
-        Write-Output "Gathering Hosts from "$SinglePoolName
+        Write-Output "Gathering Hosts from Host Pool --> "$SinglePoolName
         $HPs = Get-AzWvdHostPool -name $SinglePoolName -ResourceGroupName $PoolResourceGroupName
     }
 }
@@ -149,10 +149,11 @@ $ErrorActionPreference = 'Continue'
 ################################################
 #    Create Temp Resource Group for Imaging    #
 ################################################
-Write-Output "Create Temp Resources for Updating"
+Write-Output "Create Temp Resources for AVD Image Updating"
 $TempRG = New-AzResourceGroup `
-    -Location $inactiveHost.Location `
-    -Name "AVDImaging-Temp"
+    -Location $HP.Location `
+    -Name "AVDImaging-Temp" `
+    -Force
 Write-Output "Temp Resource Group Created"
 $TempSubnetCfg = New-AzVirtualNetworkSubnetConfig `
     -Name Default `
@@ -162,7 +163,8 @@ $TempVNET = New-AzVirtualNetwork `
     -ResourceGroupName $TempRG.ResourceGroupName `
     -Location $TempRG.Location `
     -AddressPrefix "10.0.0.0/16" `
-    -Subnet $TempSubnetCfg
+    -Subnet $TempSubnetCfg `
+    -Force
 Write-Output "Temp Virtual Network Created"
 
 
@@ -171,7 +173,7 @@ Write-Output "Temp Virtual Network Created"
 #########################
 Write-Output "Start Host Upgrade Process"
 foreach ($inactiveHost in $inactiveHosts) {
-    Write-Output "Stopping Host "$InactiveHost.Name
+    Write-Output "Stopping Source Host "$InactiveHost.Name
     Stop-AzVm -Name $inactiveHost.Name -ResourceGroupName $inactiveHost.ResourceGroupName -NoWait -Force
     Write-Output "Spawn New Disk From Image for Host "$InactiveHost.Name
     [string]$newDiskName = $inactiveHost.Name+"-OSDisk-"+(Get-Date -Format d-M-y)
@@ -262,7 +264,7 @@ Write-Output "Upgrade of Host is complete " $InactiveHosts.Name
     #Update-AzVM -ResourceGroupName $inactiveHost.ResourceGroupName -VM $inactiveHost
 }
 
-
+<#
 #####################
 #    Join Domain    #
 #####################
@@ -292,7 +294,7 @@ Set-AzVMCustomScriptExtension `
     -Name AVDImageExtension `
     -Argument "$FSLogixProfilePath $Token"
 
-
+#>
 ####################################
 #    Set Hosts to Available Mode   #
 ####################################
@@ -339,6 +341,9 @@ $ErrorActionPreference = 'Continue'
 #    Clean Up    #
 ##################
 Write-Output "All Processes Complete, Remove all Temp Resources"
-Remove-AzResourceGroup -Name $TempRG.ResourceGroupName -Force -Verbose
+Remove-AzResourceGroup `
+    -Name $TempRG.ResourceGroupName `
+    -Force `
+    -Verbose
 
 
