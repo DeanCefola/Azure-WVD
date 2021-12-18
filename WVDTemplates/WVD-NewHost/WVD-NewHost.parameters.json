@@ -8,6 +8,9 @@
     "AdminUserName": {
       "value": "lntad"
     },
+    "AdminPassword": {
+      "value": "MyP@$$W0rd!"
+    },
     "DomainFQDN": {
       "value": "MSAzureAcademy.com"
     },
