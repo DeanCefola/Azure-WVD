@@ -4,16 +4,18 @@
   "parameters": {
     "Prefix": {
       "type": "string",
-      "defaultValue": "wvd"
+      "defaultValue": "avd"
     },
     "AdminUserName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "lntad"
     },
     "AdminPassword": {
-      "type": "securestring"
+      "type": "securestring",
+      "defaultValue": "myP@$$W0rd!"
     },
     "DomainFQDN": {
-      "type": "string"
+      "type": "MSAzureAcademy.com"
     },
     "Instance": {
       "type": "int",
@@ -39,26 +41,27 @@
       ]
     },
     "VnetRgName": {
-      "type": "string"
+      "type": "MSAA-vnet"
     },
     "VnetName": {
-      "type": "string"
+      "type": "msaa-vnet"
     },
     "SubnetName": {
-      "type": "string"
+      "type": "coresubnet"
     },
     "ProfilePath": {
-      "type": "string"
+      "type": "\\msazureacademy.com\corpshare\fslogix"
     },
     "RegistrationToken": {
-      "type": "string"
+      "type": "oajnsdkjnsfkajdnfaksdjfnaksdjfna;iut4a98tq498nq948nfq894nf98n4f89q498f4qn3984n8943nf984n984nf4nf"
     },
     "Optimize": {
       "type": "bool",
       "allowedValues": [
         true,
         false
-      ]
+      ],
+      "defaultValue": true
     }
   },
   "variables": {
