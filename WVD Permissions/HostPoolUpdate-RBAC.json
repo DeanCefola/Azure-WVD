@@ -1,0 +1,55 @@
+{
+ "properties": {
+ "roleName": "HostPoolUpdate",
+ "description": "Friendly description.",
+ "assignableScopes": [
+ "/subscriptions/<SubscriptionID>"
+ ],
+  "permissions": [
+   {
+   "actions": [
+	"Microsoft.Compute/*/read", 
+
+	"Microsoft.Compute/availabilitySets/write", 
+	
+	"Microsoft.Compute/virtualMachines/*", 
+	
+	"Microsoft.Compute/disks/write", 
+	
+	"Microsoft.Compute/disks/delete", 
+	
+	"Microsoft.Network/networkSecurityGroups/read", 
+	
+	"Microsoft.Network/networkInterfaces/*", 
+	
+	"Microsoft.Network/virtualNetworks/subnets/read", 
+	
+	"Microsoft.Network/virtualNetworks/subnets/join/action", 
+	
+	"Microsoft.DesktopVirtualization/hostpools/*", 
+	
+	"Microsoft.Marketplace/offerTypes/publishers/offers/plans/agreements/read", 
+	
+	"Microsoft.KeyVault/vaults/deploy/action", 
+	
+	"Microsoft.Storage/storageAccounts/listkeys/action", 
+	
+	"Microsoft.Storage/storageAccounts/read", 
+	
+	"Microsoft.Resources/subscriptions/resourceGroups/read", 
+	
+	"Microsoft.Resources/deployments/*", 
+	
+	"Microsoft.Authorization/*/read", 
+	
+	"Microsoft.Insights/alertRules/*", 
+	
+	"Microsoft.Support/*" 
+],
+  "notActions": [],
+  "dataActions": [],
+  "notDataActions": []
+  }
+ ]
+}
+}
