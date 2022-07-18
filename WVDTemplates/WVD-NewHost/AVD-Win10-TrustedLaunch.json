@@ -189,13 +189,13 @@
           }
         },
         "licenseType": "[variables('License')[parameters('OperatingSystem')].License]",
-        "securityProfile": {
+        "securityProfile":{
           "securityType": "TrustedLaunch",
           "uefiSettings": {
             "secureBootEnabled": true,
             "vTpmEnabled": true
           }
-		}
+        }		
       },
       "zones": [
         1
