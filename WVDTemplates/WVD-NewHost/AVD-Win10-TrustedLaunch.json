@@ -112,7 +112,7 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('VMName'),copyIndex(),'-nic')]",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2021-03-01",
       "location": "[resourceGroup().location]",
       "copy": {
         "name": "WVDNic-Copy",
@@ -143,7 +143,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(variables('VMName'),copyIndex())]",
-      "apiVersion": "2019-03-01",
+      "apiVersion": "2022-03-01",
       "location": "[resourceGroup().location]",
       "copy": {
         "name": "WVD-Copy",
