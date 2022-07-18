@@ -195,6 +195,7 @@
             "secureBootEnabled": true,
             "vTpmEnabled": true
           }
+		}
       },
       "zones": [
         1
