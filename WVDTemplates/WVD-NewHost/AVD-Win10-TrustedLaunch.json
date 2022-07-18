@@ -70,9 +70,9 @@
         "version": "latest"
       },
       "Client": {
-        "publisher": "microsoftwindowsdesktop",
-        "offer": "office-365",
-        "sku": "20h1-evd-o365pp",
+        "publisher": "MicrosoftWindowsDesktop",
+        "offer": "Windows-10",
+        "sku": "21h1-evd-g2",
         "version": "latest"
       }
     },
