@@ -1,0 +1,42 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "hostpools_NewPool_HP_name": {
+            "value": null
+        },
+        "workspaces_NewPool_WS_name": {
+            "value": null
+        },
+        "privateEndpoints_NewPool_HP_Private_name": {
+            "value": null
+        },
+        "privateEndpoints_NewPool_WS_Private_name": {
+            "value": null
+        },
+        "workspaces_Standalone_WS_name": {
+            "value": null
+        },
+        "privateEndpoints_Standalone_WS_Private_name": {
+            "value": null
+        },
+        "networkInterfaces_NewPool_HP_Private_nic_name": {
+            "value": null
+        },
+        "networkInterfaces_NewPool_WS_Private_nic_name": {
+            "value": null
+        },
+        "networkInterfaces_Standalone_WS_Private_nic_name": {
+            "value": null
+        },
+        "applicationgroups_NewPool_HP_DAG_name": {
+            "value": null
+        },
+        "virtualNetworks_MSAA_vNET_externalid": {
+            "value": null
+        },
+        "privateDnsZones_privatelink_wvdselfhost_microsoft_com_externalid": {
+            "value": null
+        }
+    }
+}

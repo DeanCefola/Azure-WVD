@@ -1,0 +1,625 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "hostpools_NewPool_HP_name": {
+            "defaultValue": "NewPool-HP",
+            "type": "String"
+        },
+        "workspaces_NewPool_WS_name": {
+            "defaultValue": "NewPool-WS",
+            "type": "String"
+        },
+        "privateEndpoints_NewPool_HP_Private_name": {
+            "defaultValue": "NewPool-HP-Private",
+            "type": "String"
+        },
+        "privateEndpoints_NewPool_WS_Private_name": {
+            "defaultValue": "NewPool-WS-Private",
+            "type": "String"
+        },
+        "workspaces_Standalone_WS_name": {
+            "defaultValue": "Standalone-WS",
+            "type": "String"
+        },
+        "privateEndpoints_Standalone_WS_Private_name": {
+            "defaultValue": "Standalone-WS-Private",
+            "type": "String"
+        },
+        "networkInterfaces_NewPool_HP_Private_nic_name": {
+            "defaultValue": "NewPool-HP-Private-nic",
+            "type": "String"
+        },
+        "networkInterfaces_NewPool_WS_Private_nic_name": {
+            "defaultValue": "NewPool-WS-Private-nic",
+            "type": "String"
+        },
+        "networkInterfaces_Standalone_WS_Private_nic_name": {
+            "defaultValue": "Standalone-WS-Private-nic",
+            "type": "String"
+        },
+        "applicationgroups_NewPool_HP_DAG_name": {
+            "defaultValue": "NewPool-HP-DAG",
+            "type": "String"
+        },
+        "virtualNetworks_MSAA_vNET_externalid": {
+            "defaultValue": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/MSAA-Network-rg/providers/Microsoft.Network/virtualNetworks/MSAA-vNET",
+            "type": "String"
+        },
+        "privateDnsZones_privatelink_wvdselfhost_microsoft_com_externalid": {
+            "defaultValue": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/MSAA-Network-rg/providers/Microsoft.Network/privateDnsZones/privatelink.wvdselfhost.microsoft.com",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DesktopVirtualization/hostpools",
+            "apiVersion": "2022-04-01-preview",
+            "name": "[parameters('hostpools_NewPool_HP_name')]",
+            "location": "eastus",
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234"
+            },
+            "properties": {
+                "publicNetworkAccess": "Disabled",
+                "description": "Created through the Azure Virtual Desktop extension",
+                "hostPoolType": "Pooled",
+                "customRdpProperty": "drivestoredirect:s:*;audiomode:i:0;videoplaybackmode:i:1;redirectclipboard:i:1;redirectprinters:i:1;devicestoredirect:s:*;redirectcomports:i:1;redirectsmartcards:i:1;usbdevicestoredirect:s:*;enablecredsspsupport:i:1;redirectwebauthn:i:1;use multimon:i:1;",
+                "maxSessionLimit": 20,
+                "loadBalancerType": "BreadthFirst",
+                "validationEnvironment": false,
+                "preferredAppGroupType": "Desktop",
+                "startVMOnConnect": false
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/workspaces",
+            "apiVersion": "2022-04-01-preview",
+            "name": "[parameters('workspaces_Standalone_WS_name')]",
+            "location": "eastus",
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234"
+            },
+            "properties": {
+                "publicNetworkAccess": "Disabled",
+                "description": "Standalone Workspace for Global Private Endpoint",
+                "friendlyName": "[parameters('workspaces_Standalone_WS_name')]",
+                "applicationGroupReferences": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2022-01-01",
+            "name": "[parameters('networkInterfaces_NewPool_HP_Private_nic_name')]",
+            "location": "eastus",
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP"
+            },
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "privateEndpointIpConfig.c14d95d0-118c-4da9-a319-5509b1431da5",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NewPool_HP_Private_nic_name')), '/ipConfigurations/privateEndpointIpConfig.c14d95d0-118c-4da9-a319-5509b1431da5')]",
+                        "etag": "W/\"9c2fda21-6c53-429f-a22c-1dcaa9b2e0a2\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "20.0.4.23",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "privateLinkConnectionProperties": {
+                                "groupId": "connection",
+                                "requiredMemberName": "broker",
+                                "fqdns": [
+                                    "4d2e97f4-34db-4447-b496-b8a53fa97bcf.rdbroker.wvdselfhost.microsoft.com",
+                                    "4d2e97f4-34db-4447-b496-b8a53fa97bcf.rdbroker-g-US-r1.wvdselfhost.microsoft.com"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "privateEndpointIpConfig.61eb4299-4732-43d7-9a14-3c012879f21f",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NewPool_HP_Private_nic_name')), '/ipConfigurations/privateEndpointIpConfig.61eb4299-4732-43d7-9a14-3c012879f21f')]",
+                        "etag": "W/\"9c2fda21-6c53-429f-a22c-1dcaa9b2e0a2\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "20.0.4.24",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                            },
+                            "primary": false,
+                            "privateIPAddressVersion": "IPv4",
+                            "privateLinkConnectionProperties": {
+                                "groupId": "connection",
+                                "requiredMemberName": "diagnostics",
+                                "fqdns": [
+                                    "4d2e97f4-34db-4447-b496-b8a53fa97bcf.rddiagnostics-g-US-r1.wvdselfhost.microsoft.com"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "privateEndpointIpConfig.77f14b65-8cef-46f7-9beb-58ba25d0d1c6",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NewPool_HP_Private_nic_name')), '/ipConfigurations/privateEndpointIpConfig.77f14b65-8cef-46f7-9beb-58ba25d0d1c6')]",
+                        "etag": "W/\"9c2fda21-6c53-429f-a22c-1dcaa9b2e0a2\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "20.0.4.25",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                            },
+                            "primary": false,
+                            "privateIPAddressVersion": "IPv4",
+                            "privateLinkConnectionProperties": {
+                                "groupId": "connection",
+                                "requiredMemberName": "gateway-ring-map",
+                                "fqdns": [
+                                    "4d2e97f4-34db-4447-b496-b8a53fa97bcf.afdfp-rdgateway-r1.wvdselfhost.microsoft.com"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "privateEndpointIpConfig.02a184c6-4d29-44e3-a4eb-4b296b00a592",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NewPool_HP_Private_nic_name')), '/ipConfigurations/privateEndpointIpConfig.02a184c6-4d29-44e3-a4eb-4b296b00a592')]",
+                        "etag": "W/\"9c2fda21-6c53-429f-a22c-1dcaa9b2e0a2\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "20.0.4.26",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                            },
+                            "primary": false,
+                            "privateIPAddressVersion": "IPv4",
+                            "privateLinkConnectionProperties": {
+                                "groupId": "connection",
+                                "requiredMemberName": "web",
+                                "fqdns": [
+                                    "4d2e97f4-34db-4447-b496-b8a53fa97bcf.rdweb.wvdselfhost.microsoft.com",
+                                    "4d2e97f4-34db-4447-b496-b8a53fa97bcf.rdweb-g-US-r1.wvdselfhost.microsoft.com"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "nicType": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2022-01-01",
+            "name": "[parameters('networkInterfaces_NewPool_WS_Private_nic_name')]",
+            "location": "eastus",
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP"
+            },
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "privateEndpointIpConfig.8973f6a5-3655-4dbe-83d3-caaa9118d7dc",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NewPool_WS_Private_nic_name')), '/ipConfigurations/privateEndpointIpConfig.8973f6a5-3655-4dbe-83d3-caaa9118d7dc')]",
+                        "etag": "W/\"a4bab679-7f0a-4b80-9122-4b51a4b22975\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "20.0.4.27",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "privateLinkConnectionProperties": {
+                                "groupId": "feed",
+                                "requiredMemberName": "web-r1",
+                                "fqdns": [
+                                    "b8cf3d3c-17ea-402a-81d6-c08cea582a56.rdweb.wvdselfhost.microsoft.com",
+                                    "b8cf3d3c-17ea-402a-81d6-c08cea582a56.rdweb-g-US-r1.wvdselfhost.microsoft.com"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "privateEndpointIpConfig.7dccfdb1-d3a0-4db6-9d63-e5ffc3b8b72c",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NewPool_WS_Private_nic_name')), '/ipConfigurations/privateEndpointIpConfig.7dccfdb1-d3a0-4db6-9d63-e5ffc3b8b72c')]",
+                        "etag": "W/\"a4bab679-7f0a-4b80-9122-4b51a4b22975\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "20.0.4.28",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                            },
+                            "primary": false,
+                            "privateIPAddressVersion": "IPv4",
+                            "privateLinkConnectionProperties": {
+                                "groupId": "feed",
+                                "requiredMemberName": "web-r0",
+                                "fqdns": [
+                                    "b8cf3d3c-17ea-402a-81d6-c08cea582a56.rdweb-g-US-r0.wvdselfhost.microsoft.com"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "nicType": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2022-01-01",
+            "name": "[parameters('networkInterfaces_Standalone_WS_Private_nic_name')]",
+            "location": "eastus",
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP"
+            },
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "privateEndpointIpConfig.08770c71-17c4-419b-9535-667b275a867a",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Standalone_WS_Private_nic_name')), '/ipConfigurations/privateEndpointIpConfig.08770c71-17c4-419b-9535-667b275a867a')]",
+                        "etag": "W/\"0eca855c-82fa-473d-8075-d0c9315f0fe6\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "20.0.4.29",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "privateLinkConnectionProperties": {
+                                "groupId": "global",
+                                "requiredMemberName": "web",
+                                "fqdns": [
+                                    "rdweb.wvdselfhost.microsoft.com",
+                                    "www.wvdselfhost.microsoft.com",
+                                    "client.wvdselfhost.microsoft.com"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "nicType": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/applicationgroups",
+            "apiVersion": "2022-04-01-preview",
+            "name": "[parameters('applicationgroups_NewPool_HP_DAG_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('hostpools_NewPool_HP_name'))]"
+            ],
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234"
+            },
+            "kind": "Desktop",
+            "properties": {
+                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('hostpools_NewPool_HP_name'))]",
+                "description": "Desktop Application Group created through the Hostpool Wizard",
+                "friendlyName": "Default Desktop",
+                "applicationGroupType": "Desktop"
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/hostpools/privateendpointconnections",
+            "apiVersion": "2022-04-01-preview",
+            "name": "[concat(parameters('hostpools_NewPool_HP_name'), '/', parameters('hostpools_NewPool_HP_name'), '-Private.f43b0641-67b8-44b8-88be-a38df6a45851')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('hostpools_NewPool_HP_name'))]"
+            ],
+            "properties": {
+                "provisioningState": "Succeeded",
+                "privateEndpoint": {},
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved",
+                    "description": "Auto-approved",
+                    "actionsRequired": "None"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/workspaces",
+            "apiVersion": "2022-04-01-preview",
+            "name": "[parameters('workspaces_NewPool_WS_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('applicationgroups_NewPool_HP_DAG_name'))]"
+            ],
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP"
+            },
+            "properties": {
+                "publicNetworkAccess": "Disabled",
+                "friendlyName": "[parameters('workspaces_NewPool_WS_name')]",
+                "applicationGroupReferences": [
+                    "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('applicationgroups_NewPool_HP_DAG_name'))]"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/workspaces/privateendpointconnections",
+            "apiVersion": "2022-04-01-preview",
+            "name": "[concat(parameters('workspaces_NewPool_WS_name'), '/', parameters('workspaces_NewPool_WS_name'), '-Private.1bc996b3-4da0-4223-bf08-67036b539d67')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaces_NewPool_WS_name'))]"
+            ],
+            "properties": {
+                "provisioningState": "Succeeded",
+                "privateEndpoint": {},
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved",
+                    "description": "Auto-approved",
+                    "actionsRequired": "None"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/workspaces/privateendpointconnections",
+            "apiVersion": "2022-04-01-preview",
+            "name": "[concat(parameters('workspaces_Standalone_WS_name'), '/', parameters('workspaces_Standalone_WS_name'), '-Private.9b446aba-2947-4a9d-9119-fe800a6bf7e2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaces_Standalone_WS_name'))]"
+            ],
+            "properties": {
+                "provisioningState": "Succeeded",
+                "privateEndpoint": {},
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved",
+                    "description": "Auto-approved",
+                    "actionsRequired": "None"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2022-01-01",
+            "name": "[parameters('privateEndpoints_NewPool_HP_Private_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('hostpools_NewPool_HP_name'))]"
+            ],
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP"
+            },
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[parameters('privateEndpoints_NewPool_HP_Private_name')]",
+                        "id": "[concat(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_NewPool_HP_Private_name')), concat('/privateLinkServiceConnections/', parameters('privateEndpoints_NewPool_HP_Private_name')))]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('hostpools_NewPool_HP_name'))]",
+                            "groupIds": [
+                                "connection"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "description": "Auto-approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "customNetworkInterfaceName": "[concat(parameters('privateEndpoints_NewPool_HP_Private_name'), '-nic')]",
+                "subnet": {
+                    "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                },
+                "ipConfigurations": [],
+                "customDnsConfigs": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2022-01-01",
+            "name": "[parameters('privateEndpoints_NewPool_WS_Private_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaces_NewPool_WS_name'))]"
+            ],
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP"
+            },
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[parameters('privateEndpoints_NewPool_WS_Private_name')]",
+                        "id": "[concat(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_NewPool_WS_Private_name')), concat('/privateLinkServiceConnections/', parameters('privateEndpoints_NewPool_WS_Private_name')))]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaces_NewPool_WS_name'))]",
+                            "groupIds": [
+                                "feed"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "description": "Auto-approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "customNetworkInterfaceName": "[concat(parameters('privateEndpoints_NewPool_WS_Private_name'), '-nic')]",
+                "subnet": {
+                    "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                },
+                "ipConfigurations": [],
+                "customDnsConfigs": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2022-01-01",
+            "name": "[parameters('privateEndpoints_Standalone_WS_Private_name')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaces_Standalone_WS_name'))]"
+            ],
+            "tags": {
+                "Application": "AVD Private Endpoints",
+                "cost center": "AA-Money",
+                "Environment": "Lab",
+                "Owner": "AVD Admin",
+                "Support Contact": "x1234",
+                "cm-resource-parent": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/resourceGroups/Private/providers/Microsoft.DesktopVirtualization/hostpools/NewPool-HP"
+            },
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[parameters('privateEndpoints_Standalone_WS_Private_name')]",
+                        "id": "[concat(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_Standalone_WS_Private_name')), concat('/privateLinkServiceConnections/', parameters('privateEndpoints_Standalone_WS_Private_name')))]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaces_Standalone_WS_name'))]",
+                            "groupIds": [
+                                "global"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "description": "Auto-approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "customNetworkInterfaceName": "[concat(parameters('privateEndpoints_Standalone_WS_Private_name'), '-nic')]",
+                "subnet": {
+                    "id": "[concat(parameters('virtualNetworks_MSAA_vNET_externalid'), '/subnets/CoreSubnet')]"
+                },
+                "ipConfigurations": [],
+                "customDnsConfigs": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2022-01-01",
+            "name": "[concat(parameters('privateEndpoints_NewPool_HP_Private_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_NewPool_HP_Private_name'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "privatelink-wvdselfhost-microsoft-com",
+                        "properties": {
+                            "privateDnsZoneId": "[parameters('privateDnsZones_privatelink_wvdselfhost_microsoft_com_externalid')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2022-01-01",
+            "name": "[concat(parameters('privateEndpoints_NewPool_WS_Private_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_NewPool_WS_Private_name'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "privatelink-wvdselfhost-microsoft-com",
+                        "properties": {
+                            "privateDnsZoneId": "[parameters('privateDnsZones_privatelink_wvdselfhost_microsoft_com_externalid')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2022-01-01",
+            "name": "[concat(parameters('privateEndpoints_Standalone_WS_Private_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_Standalone_WS_Private_name'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "privatelink-wvdselfhost-microsoft-com",
+                        "properties": {
+                            "privateDnsZoneId": "[parameters('privateDnsZones_privatelink_wvdselfhost_microsoft_com_externalid')]"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
