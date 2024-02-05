@@ -49,4 +49,4 @@ Expand-Archive `
 New-Item -Path C:\Optimize\ -Name install.log -ItemType File -Force
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
 add-content c:\Optimize\install.log "Starting Optimizations"  
-& C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Optimizations $Optimizations -Restart -AcceptEULA -Verbose
+& C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations $Optimizations -Restart -AcceptEULA -Verbose
