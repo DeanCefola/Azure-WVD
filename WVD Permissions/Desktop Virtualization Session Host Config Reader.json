@@ -1,0 +1,20 @@
+{
+    "id": "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049/providers/Microsoft.Authorization/roleDefinitions/330f99cb-dabd-476f-97b5-3fac1344533e",
+    "properties": {
+        "roleName": "Desktop Virtualization Session Host Config Reader",
+        "description": "AVD Dynamic Scaling permission to read session host configuration, \n\"Microsoft.DesktopVirtualization/hostPools/activeSessionHostConfigurations/read\"",
+        "assignableScopes": [
+            "/subscriptions/17a60df3-f02e-43a2-b52b-11abb3a53049"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "Microsoft.DesktopVirtualization/hostpools/activeSessionhostconfigurations/read"
+                ],
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
