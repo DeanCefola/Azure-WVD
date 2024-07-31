@@ -1,19 +1,17 @@
 {
-    "properties": {
-        "roleName": "Desktop Virtualization Session Host Config Reader",
-        "description": "AVD Dynamic Scaling permission to read session host configuration, \n\"Microsoft.DesktopVirtualization/hostPools/activeSessionHostConfigurations/read\"",
-        "permissions": [
+    "properties":{
+        "roleName":"Desktop Virtualization Session Host Config Reader",
+        "description":"Dynamic Scaling Plan",        
+        "permissions":[
             {
-                "actions": [
+                "actions":[
                     "Microsoft.DesktopVirtualization/hostpools/activeSessionhostconfigurations/read"
                 ],
-                "notActions": [],
-                "dataActions": [],
-                "notDataActions": []
+                "notActions":[],
+                "dataActions":[],
+                "notDataActions":[]
             }
         ],
-    "assignableScopes": [
-    
-        ]
+        "assignableScopes":[]
     }
 }
