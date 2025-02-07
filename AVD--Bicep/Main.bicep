@@ -23,6 +23,16 @@ module VNET 'Modules/vnet.bicep' = {
   }
 }
 
+module AVDCore 'Modules/AVDCore.bicep' = {
+  name: 'AVDCore'
+  params: {
+    HPName: '${NamePrefix}-HP'
+    DesktopGroupName: '${NamePrefix}-DAG'
+    AppGroupName: '${NamePrefix}-RAG'
+    WorkspaceName: '${NamePrefix}-WS'
+    Location: Location    
+  }
+}
 
 /*################
 #    Outputs    #

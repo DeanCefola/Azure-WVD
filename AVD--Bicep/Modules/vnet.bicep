@@ -1,18 +1,25 @@
+/*##################
+#    Parameters    #
+##################*/
 param Location string
-
 param Name string
-
 param AddressPrefix string
 
+
+/*#################
+#    Variables    #
+#################*/
 // Split the AddressPrefix into its components
-var addressParts = split(AddressPrefix, '.')
-
+  var addressParts = split(AddressPrefix, '.')
 // Increment the third octet
-var incrementedThirdOctet = string(int(addressParts[2]) + 1)
-
+  var incrementedThirdOctet = string(int(addressParts[2]) + 1)
 // Construct the new AddressPrefix for Win365Subnet
-var win365AddressPrefix = '${addressParts[0]}.${addressParts[1]}.${incrementedThirdOctet}.0/24'
+  var win365AddressPrefix = '${addressParts[0]}.${addressParts[1]}.${incrementedThirdOctet}.0/24'
 
+
+/*##################
+#    Resources    #
+##################*/
 resource VNET 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   name: Name
   location: Location 
@@ -38,3 +45,10 @@ resource VNET 'Microsoft.Network/virtualNetworks@2020-11-01' = {
     ]
   }
 }
+
+
+/*################
+#    Outputs    #
+################*/
+output AVDSubnetID string = '${VNET.id}/subnets/Win365Subnet'
+output Win365SubnetID string = '${VNET.id}/subnets/AVDSubnet'
