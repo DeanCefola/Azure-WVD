@@ -28,8 +28,20 @@ resource HostPool 'Microsoft.DesktopVirtualization/hostPools@2024-08-08-preview'
     validationEnvironment: true
     startVMOnConnect: true
     registrationInfo: {
-      expirationTime: dateTimeAdd('2025-01-27 00:00:00Z', 'P31D')
+      expirationTime: dateTimeAdd('2025-02-12 00:00:00Z', 'P30D')
       registrationTokenOperation: 'Update'
+    }
+    customRdpProperty: 'networkautodetect:i:1;audiomode:i:0;videoplaybackmode:i:1;bandwidthautodetect:i:1;autoreconnection enabled:i:1;devicestoredirect:s:*;redirectcomports:i:0;redirectsmartcards:i:0;enablerdsaadauth:i:1;enablecredsspsupport:i:1;redirectwebauthn:i:1;use multimon:i:0;compression:i:1;audiocapturemode:i:1;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;camerastoredirect:s:*;redirectlocation:i:1;screen mode id:i:2;smart sizing:i:1;dynamic resolution:i:1;'
+    agentUpdate: {
+       maintenanceWindows: [
+         {
+          dayOfWeek:'Saturday'
+          hour: 2
+         }
+       ]
+       maintenanceWindowTimeZone: 'EST'
+       type: 'Scheduled'
+       useSessionHostLocalTime: true
     }
   }
 }
@@ -70,8 +82,5 @@ resource Workspace 'Microsoft.DesktopVirtualization/workspaces@2024-08-08-previe
 /*################
 #    Outputs    #
 ################*/
-output HostPoolID string = HostPool.id
-output AppDesktopID string = AppDesktop.id
-output AppRemoteID string = AppRemote.id
-output WorkspaceID string = Workspace.id
-output HostPoolName string = HostPool.listRegistrationTokens().value[0].token
+output HostPoolName string = HostPool.name
+output HostPoolToken string = HostPool.listRegistrationTokens().value[0].token

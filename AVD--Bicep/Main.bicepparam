@@ -1,6 +1,11 @@
 using './Main.bicep'
 
-param Location = 'eatus2'
-param prefix = 'Bicep'
-param AddressPrefix = '10.0.0.0'
+param AdminUserName = 'lntad'
+param AdminPassword = ''
+param Location = 'Eastus2'
+param NamePrefix = 'BICEP'
+param AddressSpace = '10.0.0.0'
+param NumberOfHosts = 1
+param HostOS = 'Win11'
+param VMSize = 'Small'
 

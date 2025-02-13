@@ -1,9 +1,27 @@
 /*##################
 #    Parameters    #
 ##################*/
+param AdminUserName string = 'lntad'
+@description('Please enter the admin password')
+@secure()
+param AdminPassword string
 param Location string
 param NamePrefix string
-param AddressPrefix string
+param AddressSpace string
+@minValue(1)
+@maxValue(99)
+param NumberOfHosts int
+@allowed([
+  'Win10'
+  'Win11'
+])
+param HostOS string
+@allowed([
+  'Small'
+  'Medium'
+  'Large'
+])
+param VMSize string = 'Small'
 
 
 /*#################
@@ -19,7 +37,7 @@ module VNET 'Modules/vnet.bicep' = {
   params: {
     Name: '${NamePrefix}-VNET'
     Location: Location
-    AddressPrefix: AddressPrefix
+    AddressSpace: AddressSpace
   }
 }
 
@@ -31,6 +49,22 @@ module AVDCore 'Modules/AVDCore.bicep' = {
     AppGroupName: '${NamePrefix}-RAG'
     WorkspaceName: '${NamePrefix}-WS'
     Location: Location    
+  }
+}
+
+module AVDHost 'Modules/AVDHost.bicep' = {
+  name: 'AVDHost'
+  params: {
+    HostPoolName: AVDCore.outputs.HostPoolName
+    NamePrefix: NamePrefix
+    Subnet: VNET.outputs.AVDSubnetID
+    NumberOfHosts: NumberOfHosts
+    Location: Location
+    RegistrationToken: AVDCore.outputs.HostPoolToken
+    AdminUserName: AdminUserName
+    AdminPassword: AdminPassword
+    HostOS: HostOS
+    VMSize: VMSize
   }
 }
 

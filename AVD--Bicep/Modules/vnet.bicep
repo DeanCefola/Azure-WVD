@@ -3,14 +3,14 @@
 ##################*/
 param Location string
 param Name string
-param AddressPrefix string
+param AddressSpace string
 
 
 /*#################
 #    Variables    #
 #################*/
 // Split the AddressPrefix into its components
-  var addressParts = split(AddressPrefix, '.')
+  var addressParts = split(AddressSpace, '.')
 // Increment the third octet
   var incrementedThirdOctet = string(int(addressParts[2]) + 1)
 // Construct the new AddressPrefix for Win365Subnet
@@ -26,14 +26,14 @@ resource VNET 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   properties: {
     addressSpace: {
       addressPrefixes: [
-        '${AddressPrefix}/16'
+        '${AddressSpace}/16'
       ]
     }
     subnets: [
       {
         name: 'AVDSubnet'
         properties: {
-          addressPrefix: '${AddressPrefix}/24'
+          addressPrefix: '${AddressSpace}/24'
         }
       }
       {   
@@ -50,5 +50,6 @@ resource VNET 'Microsoft.Network/virtualNetworks@2020-11-01' = {
 /*################
 #    Outputs    #
 ################*/
-output AVDSubnetID string = '${VNET.id}/subnets/Win365Subnet'
-output Win365SubnetID string = '${VNET.id}/subnets/AVDSubnet'
+output AVDSubnetID string = '${VNET.id}/subnets/AVDSubnet'
+output Win365SubnetID string = '${VNET.id}/subnets/Win365Subnet'
+
