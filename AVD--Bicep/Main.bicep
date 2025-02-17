@@ -41,6 +41,33 @@ module VNET 'Modules/vnet.bicep' = {
   }
 }
 
+module Firewall 'Modules/Firewall.bicep' = {
+  name: 'Firewall'
+  params: {
+    FWName: '${NamePrefix}-FW'
+    Location: Location
+    FirewallSubnet: VNET.outputs.FirewallSubnetID
+  }
+}
+
+module Bastion 'Modules/Bastian.bicep' = {
+  name: 'Bastion'
+  params: {
+    BastionName: '${NamePrefix}-Bastion'
+    Location: Location
+    BastionSubnet: VNET.outputs.BastionSubnetID
+  }
+}
+
+module KeyVault 'Modules/KeyVault.bicep' = {
+  name: 'KeyVault'
+  params: {
+    KVName: '${NamePrefix}-KV'
+    Location: Location
+    AdminPassword: AdminPassword
+  }
+}
+
 module AVDCore 'Modules/AVDCore.bicep' = {
   name: 'AVDCore'
   params: {
@@ -61,7 +88,7 @@ module AVDHost 'Modules/AVDHost.bicep' = {
     NumberOfHosts: NumberOfHosts
     Location: Location
     RegistrationToken: AVDCore.outputs.HostPoolToken
-    AdminUserName: AdminUserName
+    AdminUserName: KeyVault.outputs.LocalAdminUserName
     AdminPassword: AdminPassword
     HostOS: HostOS
     VMSize: VMSize
