@@ -9,20 +9,16 @@ param AddressSpace string
 /*#################
 #    Variables    #
 #################*/
-// Split the AddressPrefix into its components
-  var addressParts = split(AddressSpace, '.')
-// Increment the third octet
-  var incrementedThirdOctet = string(int(addressParts[2]) + 1)
-// Construct the new AddressPrefix for Win365Subnet
-  var win365AddressPrefix = '${addressParts[0]}.${addressParts[1]}.${incrementedThirdOctet}.0/24'
-// Increment the Firewall octet
-  var FirewallOctet = string(int(addressParts[2]) + 2)
-// Construct the new AddressPrefix for FirewallSubnet
-  var FirewallAddressPrefix = '${addressParts[0]}.${addressParts[1]}.${FirewallOctet}.0/24'  
-// Increment the Bastion octet
-  var BastionOctet = string(int(addressParts[2]) + 3)
-// Construct the new AddressPrefix for BastionSubnet
-  var BastionAddressPrefix = '${addressParts[0]}.${addressParts[1]}.${BastionOctet}.0/24'
+var addressParts = split(AddressSpace, '.')
+var baseAddress = '${addressParts[0]}.${addressParts[1]}' 
+var sharedServicesSubnet = '${baseAddress}.1.0/24'
+var azureFirewallManagementSubnet = '${baseAddress}.2.0/24'
+var azureFirewallSubnet = '${baseAddress}.3.0/24'
+var azureBastionSubnet = '${baseAddress}.4.0/24'
+var avdSubnet = '${baseAddress}.5.0/24'
+var win365Subnet = '${baseAddress}.6.0/24'
+
+
 /*##################
 #    Resources    #
 ##################*/
@@ -32,34 +28,45 @@ resource VNET 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   properties: {
     addressSpace: {
       addressPrefixes: [
-        '${AddressSpace}/16'
+        AddressSpace
       ]
     }
     subnets: [
-      {
-        name: 'AVDSubnet'
+      {name: 'SharedServicesSubnet'
         properties: {
-          addressPrefix: '${AddressSpace}/24'
+          addressPrefix: sharedServicesSubnet
         }
       }
-      {   
-        name: 'Win365Subnet'
+      {
+        name: 'AzureFirewallManagementSubnet'
         properties: {
-          addressPrefix: win365AddressPrefix
+          addressPrefix: azureFirewallManagementSubnet
         }
       }
       {
         name: 'AzureFirewallSubnet'
         properties: {
-          addressPrefix: FirewallAddressPrefix
+          addressPrefix: azureFirewallSubnet
         }
       }
       {
         name: 'AzureBastionSubnet'
         properties: {
-          addressPrefix: BastionAddressPrefix
+          addressPrefix: azureBastionSubnet
         }
       }
+      {
+        name: 'AVDSubnet'
+        properties: {
+          addressPrefix: avdSubnet
+        }
+      }
+      {   
+        name: 'Win365Subnet'
+        properties: {
+          addressPrefix: win365Subnet
+        }
+      }      
     ]
   }
 }
@@ -68,7 +75,10 @@ resource VNET 'Microsoft.Network/virtualNetworks@2020-11-01' = {
 /*################
 #    Outputs    #
 ################*/
-output AVDSubnetID string = '${VNET.id}/subnets/AVDSubnet'
-output Win365SubnetID string = '${VNET.id}/subnets/Win365Subnet'
+output SharedSubnetID string = '${VNET.id}/subnets/SharedServicesSubnet'
+output FirewallMgtSubnetID string = '${VNET.id}/subnets/AzureFirewallManagementSubnet'
 output FirewallSubnetID string = '${VNET.id}/subnets/AzureFirewallSubnet'
 output BastionSubnetID string = '${VNET.id}/subnets/AzureBastionSubnet'
+output AVDSubnetID string = '${VNET.id}/subnets/AVDSubnet'
+output Win365SubnetID string = '${VNET.id}/subnets/Win365Subnet'
+
