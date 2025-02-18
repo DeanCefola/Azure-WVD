@@ -46,6 +46,7 @@ module Firewall 'Modules/Firewall.bicep' = {
   params: {
     FWName: '${NamePrefix}-FW'
     Location: Location
+    FWMgtSubnet: VNET.outputs.FirewallMgtSubnetID
     FirewallSubnet: VNET.outputs.FirewallSubnetID
   }
 }
