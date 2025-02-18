@@ -75,6 +75,7 @@ module AVDCore 'Modules/AVDCore.bicep' = {
     DesktopGroupName: '${NamePrefix}-DAG'
     AppGroupName: '${NamePrefix}-RAG'
     WorkspaceName: '${NamePrefix}-WS'
+    ScalingPlanName: '${NamePrefix}-SP'
     Location: Location    
   }
 }
@@ -88,7 +89,7 @@ module AVDHost 'Modules/AVDHost.bicep' = {
     NumberOfHosts: NumberOfHosts
     Location: Location
     RegistrationToken: AVDCore.outputs.HostPoolToken
-    AdminUserName: KeyVault.outputs.LocalAdminUserName
+    AdminUserName: AdminUserName
     AdminPassword: AdminPassword
     HostOS: HostOS
     VMSize: VMSize

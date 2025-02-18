@@ -5,6 +5,7 @@ param HPName string
 param DesktopGroupName string
 param AppGroupName string
 param WorkspaceName string
+param ScalingPlanName string
 param Location string
 
 
@@ -74,6 +75,62 @@ resource Workspace 'Microsoft.DesktopVirtualization/workspaces@2024-08-08-previe
     applicationGroupReferences: [
       AppDesktop.id
       AppRemote.id
+    ]
+  }
+}
+
+resource ScalingPlan 'Microsoft.DesktopVirtualization/scalingplans@2024-04-08-preview' = {
+  name: ScalingPlanName
+  location: Location  
+  properties: {
+    friendlyName: 'AVD Scaling Plan'
+    timeZone: 'Eastern Standard Time'
+    hostPoolType: 'Pooled'
+    schedules: [
+      {
+        rampUpStartTime: {
+          hour: 9
+          minute: 0
+        }
+        peakStartTime: {
+          hour: 9
+          minute: 30
+        }
+        rampDownStartTime: {
+          hour: 18
+          minute: 0
+        }
+        offPeakStartTime: {
+          hour: 22
+          minute: 0
+        }
+        name: 'weekdays_schedule'
+        daysOfWeek: [
+          'Monday'
+          'Tuesday'
+          'Wednesday'
+          'Thursday'
+          'Friday'
+        ]
+        rampUpLoadBalancingAlgorithm: 'BreadthFirst'
+        rampUpMinimumHostsPct: 100
+        rampUpCapacityThresholdPct: 60
+        peakLoadBalancingAlgorithm: 'DepthFirst'
+        rampDownLoadBalancingAlgorithm: 'DepthFirst'
+        rampDownMinimumHostsPct: 100
+        rampDownCapacityThresholdPct: 90
+        rampDownForceLogoffUsers: true
+        rampDownWaitTimeMinutes: 30
+        rampDownNotificationMessage: 'You will be logged off in 30 min. Make sure to save your work.'
+        rampDownStopHostsWhen: 'ZeroSessions'
+        offPeakLoadBalancingAlgorithm: 'DepthFirst'
+      }
+    ]
+    hostPoolReferences: [
+      {
+        hostPoolArmPath: HostPool.id
+        scalingPlanEnabled: true
+      }
     ]
   }
 }
