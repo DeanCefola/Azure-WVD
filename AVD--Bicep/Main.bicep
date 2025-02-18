@@ -27,7 +27,7 @@ param VMSize string = 'Small'
 /*#################
 #    Variables    #
 #################*/
-
+var randomString = substring(uniqueString(resourceGroup().id), 0, 4)
 
 /*##################
 #    Resources    #
@@ -62,7 +62,7 @@ module Bastion 'Modules/Bastian.bicep' = {
 module KeyVault 'Modules/KeyVault.bicep' = {
   name: 'KeyVault'
   params: {
-    KVName: '${NamePrefix}-KV'
+    KVName: '${NamePrefix}-KV-${randomString}'
     Location: Location
     AdminPassword: AdminPassword
   }
