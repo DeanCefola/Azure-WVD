@@ -4,6 +4,7 @@
 param FWName string
 param Location string
 param FirewallSubnet string
+param FWMgtSubnet string
 
 /*#################
 #    Variables    #
@@ -13,6 +14,17 @@ param FirewallSubnet string
 /*##################
 #    Resources    #
 ##################*/
+resource FWMgtPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
+  name: '${FWName}-MgtPIP'
+  location: Location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+  }
+}
+
 resource FWPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: '${FWName}-PIP'
   location: Location
@@ -30,11 +42,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2024-05-01' = {
   properties: {
     sku: {
       tier: 'Basic'
-    }
-    dnsSettings: {
-      enableProxy: true
-    }
-    threatIntelMode: 'Alert'
+    }    
   }
 }
 
@@ -45,7 +53,18 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
     sku: {
       name: 'AZFW_VNet'
       tier: 'Basic'
-    }    
+    }
+    managementIpConfiguration: {
+      name: 'ManagementIPConfig'
+      properties: {
+        publicIPAddress: {
+          id: FWMgtPIP.id
+        }
+      subnet: {
+        id: FWMgtSubnet        
+      }
+      }
+    }
     firewallPolicy: {
       id: firewallPolicy.id
     }
