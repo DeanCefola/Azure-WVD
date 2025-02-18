@@ -13,27 +13,41 @@ param FirewallSubnet string
 /*##################
 #    Resources    #
 ##################*/
-resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
+resource FWPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: '${FWName}-PIP'
   location: Location
+  sku: {
+    name: 'Standard'
+  }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
-    dnsSettings: {
-      domainNameLabel: 'dnsname'
-    }
+    publicIPAllocationMethod: 'Static'
   }
 }
 
-resource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {  
+resource firewallPolicy 'Microsoft.Network/firewallPolicies@2024-05-01' = {
+  name: '${FWName}-FWP'
+  location: Location
+  properties: {
+    sku: {
+      tier: 'Basic'
+    }
+    dnsSettings: {
+      enableProxy: true
+    }
+    threatIntelMode: 'Alert'
+  }
+}
+
+resource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {    
   name: FWName
   location: Location
   properties: {
     sku: {
       name: 'AZFW_VNet'
-      tier: 'Standard'
+      tier: 'Basic'
     }    
     firewallPolicy: {
-      id: 'firewallPolicy.id'
+      id: firewallPolicy.id
     }
     ipConfigurations: [
       {
@@ -43,15 +57,12 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
             id: FirewallSubnet
           }
           publicIPAddress: {
-            id: publicIPAddress.id
+            id: FWPIP.id
           }
         }
       }
     ]
-  }
-  dependsOn: [
-    publicIPAddress
-  ]
+  }  
 }
 
 

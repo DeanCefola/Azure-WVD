@@ -13,24 +13,27 @@ param BastionSubnet string
 /*##################
 #    Resources    #
 ##################*/
-resource BastionPIP 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
+resource BastionPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: '${BastionName}-PIP'
   location: Location
+  sku: {
+    name: 'Standard'
+  }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
-    dnsSettings: {
-      domainNameLabel: 'dnsname'
-    }
+    publicIPAllocationMethod: 'Static'
   }
 }
 
-resource BastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
+resource bastionHost 'Microsoft.Network/bastionHosts@2021-02-01' = {
   name: BastionName
   location: Location
+  sku: {
+    name: 'Standard'
+  }
   properties: {
     ipConfigurations: [
       {
-        name: 'name'
+        name: 'ipconfig1'
         properties: {
           subnet: {
             id: BastionSubnet
@@ -41,7 +44,7 @@ resource BastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
         }
       }
     ]
-  }  
+  }
 }
 
 
