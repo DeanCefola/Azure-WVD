@@ -27,13 +27,28 @@ param VMSize string = 'Small'
 /*#################
 #    Variables    #
 #################*/
-var randomString = substring(uniqueString(resourceGroup().id), 0, 4)
+var randomString = substring(uniqueString(RGShared.name), 0, 4)
 
-/*##################
+
+/*##################  
 #    Resources    #
 ##################*/
+targetScope = 'subscription'
+
+resource RGShared 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+  name: 'RG-${NamePrefix}-Shared'
+  location: Location
+}
+
+resource RGAVD 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+  name: 'RG-${NamePrefix}-AVD'
+  location: Location
+}
+
+//Virtual Networks
 module VNET 'Modules/vnet.bicep' = {
-  name: 'vnet'
+  scope: resourceGroup(RGShared.name)
+  name: 'Deploy-VNet'
   params: {
     Name: '${NamePrefix}-VNET'
     Location: Location
@@ -41,8 +56,10 @@ module VNET 'Modules/vnet.bicep' = {
   }
 }
 
+//Network Security
 module Firewall 'Modules/Firewall.bicep' = {
-  name: 'Firewall'
+  scope: resourceGroup(RGShared.name)
+  name: 'Deploy-Firewall'
   params: {
     FWName: '${NamePrefix}-FW'
     Location: Location
@@ -52,7 +69,8 @@ module Firewall 'Modules/Firewall.bicep' = {
 }
 
 module Bastion 'Modules/Bastian.bicep' = {
-  name: 'Bastion'
+  scope: resourceGroup(RGShared.name)
+  name: 'Deploy-Bastion'
   params: {
     BastionName: '${NamePrefix}-Bastion'
     Location: Location
@@ -61,7 +79,8 @@ module Bastion 'Modules/Bastian.bicep' = {
 }
 
 module KeyVault 'Modules/KeyVault.bicep' = {
-  name: 'KeyVault'
+  scope: resourceGroup(RGShared.name)
+  name: 'Deploy-KeyVault'
   params: {
     KVName: '${NamePrefix}-KV-${randomString}'
     Location: Location
@@ -69,8 +88,10 @@ module KeyVault 'Modules/KeyVault.bicep' = {
   }
 }
 
+//Azure Virtual Desktop
 module AVDCore 'Modules/AVDCore.bicep' = {
-  name: 'AVDCore'
+  scope: resourceGroup(RGAVD.name)
+  name: 'Deploy-AVDCore'
   params: {
     HPName: '${NamePrefix}-HP'
     DesktopGroupName: '${NamePrefix}-DAG'
@@ -82,7 +103,8 @@ module AVDCore 'Modules/AVDCore.bicep' = {
 }
 
 module AVDHost 'Modules/AVDHost.bicep' = {
-  name: 'AVDHost'
+  scope: resourceGroup(RGAVD.name)
+  name: 'Deploy-AVDHosts'
   params: {
     HostPoolName: AVDCore.outputs.HostPoolName
     NamePrefix: NamePrefix
