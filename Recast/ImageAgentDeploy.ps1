@@ -8,7 +8,7 @@ $FilesToCopy = @("AgentRegistration.cer", "Agent.json", "Agent.exe", "AgentBoots
 
 $InstallerPath = "C:\InstallFiles\AgentBootstrapper-Win-2.1.0.2.exe" # Replace with the path to the installer executable
 
-$InstallerArguments = "/certificate=AgentRegistration.cer /startDeployment /waitForDeployment /logPath=C:\Windows\Temp"         # Optional: Add any command-line arguments for the installer
+$InstallerArguments = "/certificate=C:\InstallFiles\AgentRegistration.cer /startDeployment /waitForDeployment /logPath=C:\Windows\Temp"         # Optional: Add any command-line arguments for the installer
 
 # --- Script Start ---
 
@@ -65,6 +65,7 @@ foreach ($File in $FilesToCopy) {
    }
 
 }
+set-location $DestinationPath 
 
 # 3. Start the install process
 

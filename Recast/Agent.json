@@ -1,52 +1,52 @@
-{ 
-    "zone":"https://msazureacademy.liquit.com", 
-"promptZone": "Disabled", 
-    "registration": { 
-        "type": "Certificate" 
-    }, 
-    "log": { 
-        "level": "Debug" 
-    }, 
-    "deployment": { 
-        "enabled": true, 
-        "start": true, 
-        "context": "device", 
-        "cancel": true, 
-        "triggers": false, 
-        "autoStart": { 
-            "enabled": true, 
-            "deployment": "Image", 
-            "timer": 0 
-        } 
-    }, 
-"login": { 
-"enabled": true, 
-"sso": true, 
-"identitySource": "Azure Academy-Link", 
-"timeout": 4 
-}, 
-"icon": { 
-"enabled": true, 
-"exit": false, 
-"timeout": 30 
-}, 
-"launcher": { 
-"enabled": true, 
-"state": "Default", 
-"start": "Auto", 
-"tiles": true, 
-"minimal": false, 
-"contextMenu": true, 
-"sideMenu": "Tags", 
-"close": true 
-}, 
-                “nativeIcons”: { 
-                                 “enabled”: true, 
-“primary”: true, 
-"startMenuPath": "${Programs}" 
-}, 
-"restrictZones": true, 
-"trustedZones": [ 
-"msazureacademy.liquit.com" 
-] 
-} 
+{
+    "zone": "https://msazureacademy.liquit.com",
+    "promptZone": "Disabled",
+    "registration": {
+        "type": "Certificate"
+    },
+    "log": {
+        "level": "Debug"
+    },
+    "deployment": {
+        "enabled": true,
+        "start": true,
+        "context": "device",
+        "cancel": true,
+        "triggers": false,
+        "autoStart": {
+            "enabled": true,
+            "deployment": "Image",
+            "timer": 0
+        }
+    },
+    "login": {
+        "enabled": true,
+        "sso": true,
+        "identitySource": "Azure Academy-Link",
+        "timeout": 4
+    },
+    "icon": {
+        "enabled": true,
+        "exit": false,
+        "timeout": 30
+    },
+    "launcher": {
+        "enabled": true,
+        "state": "Default",
+        "start": "Auto",
+        "tiles": true,
+        "minimal": false,
+        "contextMenu": true,
+        "sideMenu": "Tags",
+        "close": true
+    },
+    "nativeIcons": {
+        "enabled": true,
+        "primary": true,
+        "startMenuPath": "${Programs}"
+    },
+    "restrictZones": true,
+    "trustedZones": [
+        "msazureacademy.liquit.com"
+    ]
+}
