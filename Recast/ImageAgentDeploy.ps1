@@ -1,73 +1,78 @@
 # --- Configuration ---
-
-$SourceShare = "\\wvdfslogixeast00.file.core.windows.net\recast"  # Replace with the actual network share path
-
-$DestinationPath = "C:\InstallFiles"        # Replace with the desired local destination path
-
-$FilesToCopy = @("AgentRegistration.cer", "Agent.json", "Agent.exe", "AgentBootstrapper-Win-2.1.0.2.exe") # Replace with the actual file names
-
-$InstallerPath = "C:\InstallFiles\AgentBootstrapper-Win-2.1.0.2.exe" # Replace with the path to the installer executable
-
+$clientId = "d045db27-d460-4cd2-a377-44f688236973"  # Managed Identity Client ID
+$storageAccountName = "wvdfslogixeast00"           # Storage Account Name
+$containerName = "recast"                          # Blob Container Name
+# Files to download
+$blobFiles = @(
+    "Agent.exe",
+    "Agent.json",
+    "AgentBootstrapper-Win-2.1.0.2.exe",
+    "AgentRegistration.cer",
+    "ImageAgentDeploy.ps1"
+)
+$DestinationPath = "C:\InstallFiles"               # Target path in the AIB VM
+$InstallerPath = "C:\InstallFiles\AgentBootstrapper-Win-2.1.0.2.exe" 
 $InstallerArguments = "/certificate=C:\InstallFiles\AgentRegistration.cer /startDeployment /waitForDeployment /logPath=C:\Windows\Temp"         # Optional: Add any command-line arguments for the installer
 
 # --- Script Start ---
+# ===============================
+# 1. INSTALL AZURE CLI
+# ===============================
+Write-Output "Installing Azure CLI..."
+Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi
+Start-Process msiexec.exe -ArgumentList "/i AzureCLI.msi /quiet" -Wait
 
-# 1. Create the local destination directory if it doesn't exist
+# Add Azure CLI to path for current session
+$env:PATH += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
 
-Write-Host "Creating destination directory: '$DestinationPath'"
+# ===============================
+# 2. LOGIN WITH MANAGED IDENTITY
+# ===============================
+Write-Output "Logging in with user-assigned managed identity..."
+az login --identity --username $clientId | Out-Null
 
-if (-not (Test-Path -Path $DestinationPath -PathType Container)) {
+# ===============================
+# 3. GET BLOB STORAGE ACCESS TOKEN
+# ===============================
+Write-Output "Getting access token for blob storage..."
+$accessToken = az account get-access-token `
+  --resource https://storage.azure.com/ `
+  --query accessToken -o tsv `
+  --identity --username $clientId
 
-   try {
-
-       New-Item -Path $DestinationPath -ItemType Directory -Force | Out-Null
-
-       Write-Host "Destination directory created successfully."
-
-   } catch {
-
-       Write-Error "Error creating directory '$DestinationPath': $($_.Exception.Message)"
-
-       exit 1
-
-   }
-
+# Set Authorization header with bearer token
+$headers = @{
+  Authorization = "Bearer $accessToken"
 }
 
-# 2. Copy the specified files from the network share to the local directory
-
-Write-Host "Copying files from '$SourceShare' to '$DestinationPath'..."
-
-foreach ($File in $FilesToCopy) {
-
-   $SourceFile = Join-Path -Path $SourceShare -ChildPath $File
-
-   $DestinationFile = Join-Path -Path $DestinationPath -ChildPath $File
-
-   if (Test-Path -Path $SourceFile) {
-
-       try {
-
-           Copy-Item -Path $SourceFile -Destination $DestinationFile -Force
-
-           Write-Host "Successfully copied: '$File'"
-
-       } catch {
-
-           Write-Error "Error copying '$File': $($_.Exception.Message)"
-
-       }
-
-   } else {
-
-       Write-Warning "Source file not found: '$SourceFile'"
-
-   }
-
+# ===============================
+# 4. DOWNLOAD FILES TO DESTINATION
+# ===============================
+# Create destination directory
+if (!(Test-Path $DestinationPath)) {
+    New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
 }
+
+foreach ($blobName in $blobFiles) {
+    $blobUrl = "https://$storageAccountName.blob.core.windows.net/$containerName/$blobName"
+    $localFilePath = Join-Path $DestinationPath $blobName
+
+    Write-Output "Downloading $blobName to $localFilePath..."
+    try {
+        Invoke-RestMethod -Uri $blobUrl -Headers $headers -OutFile $localFilePath
+        Write-Output "$blobName downloaded successfully."
+    } catch {
+        Write-Output "Failed to download $blobName: $_"
+    }
+}
+
+Write-Output "All downloads completed."
+
+
+# ===============================
 set-location $DestinationPath 
 
-# 3. Start the install process
+# Start the install process
 
 Write-Host "Starting the installation process..."
 
