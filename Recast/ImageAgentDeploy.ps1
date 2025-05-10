@@ -62,7 +62,7 @@ foreach ($blobName in $blobFiles) {
         Invoke-RestMethod -Uri $blobUrl -Headers $headers -OutFile $localFilePath
         Write-Output "$blobName downloaded successfully."
     } catch {
-        Write-Output "Failed to download $blobName: $_"
+        Write-Output "Failed to download $blobName $_"
     }
 }
 
