@@ -1,6 +1,6 @@
 # --- Configuration ---
 $clientId = "d045db27-d460-4cd2-a377-44f688236973"  # Managed Identity Client ID
-$storageAccountName = "wvdfslogixeast00"           # Storage Account Name
+$storageAccountName = "wvdfslogixeast02"           # Storage Account Name
 $containerName = "recast"                          # Blob Container Name
 # Files to download
 $blobFiles = @(
@@ -14,47 +14,16 @@ $DestinationPath = "C:\InstallFiles"               # Target path in the AIB VM
 $InstallerPath = "C:\InstallFiles\AgentBootstrapper-Win-2.1.0.2.exe" 
 $InstallerArguments = "/certificate=C:\InstallFiles\AgentRegistration.cer /startDeployment /waitForDeployment /logPath=C:\Windows\Temp"         # Optional: Add any command-line arguments for the installer
 
-# --- Script Start ---
-# ===============================
-# 1. INSTALL AZURE CLI
-# ===============================
-Write-Output "Installing Azure CLI..."
-Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi
-Start-Process msiexec.exe -ArgumentList "/i AzureCLI.msi /quiet" -Wait
-
-# Add Azure CLI to path for current session
-$env:PATH += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
-
-# ===============================
-# 2. LOGIN WITH MANAGED IDENTITY
-# ===============================
-Write-Output "Logging in with user-assigned managed identity..."
-az login --identity --username $clientId | Out-Null
-
-# ===============================
-# 3. GET BLOB STORAGE ACCESS TOKEN
-# ===============================
-Write-Output "Getting access token for blob storage..."
-$accessToken = az account get-access-token `
-  --resource https://storage.azure.com/ `
-  --query accessToken -o tsv `
-  --identity --username $clientId
-
-# Set Authorization header with bearer token
-$headers = @{
-  Authorization = "Bearer $accessToken"
-}
-
-# ===============================
-# 4. DOWNLOAD FILES TO DESTINATION
-# ===============================
+# =============================
+# DOWNLOAD FILES TO DESTINATION
+# =============================
 # Create destination directory
 if (!(Test-Path $DestinationPath)) {
     New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
 }
 
 foreach ($blobName in $blobFiles) {
-    $blobUrl = "https://$storageAccountName.blob.core.windows.net/$containerName/$blobName"
+    $blobUrl = "https://$storageAccountName.blob.core.windows.net/$containerName/$blobName"                
     $localFilePath = Join-Path $DestinationPath $blobName
 
     Write-Output "Downloading $blobName to $localFilePath..."
