@@ -22,8 +22,7 @@ $blobFiles = @(
     "Agent.exe",
     "Agent.json",
     "AgentBootstrapper-Win-2.1.0.2.exe",
-    "AgentRegistration.cer",
-    "ImageAgentDeploy.ps1"
+    "AgentRegistration.cer"
 )
 $DestinationPath = "C:\InstallFiles"               # Target path in the AIB VM
 $InstallerPath = "C:\InstallFiles\AgentBootstrapper-Win-2.1.0.2.exe" 
