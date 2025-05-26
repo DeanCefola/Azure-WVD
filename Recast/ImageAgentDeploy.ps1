@@ -27,26 +27,27 @@ $blobFiles = @(
 $DestinationPath = "C:\InstallFiles"               # Target path in the AIB VM
 $InstallerPath = "C:\InstallFiles\AgentBootstrapper-Win-2.1.0.2.exe" 
 $InstallerArguments = "/certificate=C:\InstallFiles\AgentRegistration.cer /startDeployment /waitForDeployment /logPath=C:\Windows\Temp"         # Optional: Add any command-line arguments for the installer
-$response = Invoke-WebRequest -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2021-01-01&resource=https://storage.azure.com" -Headers @{"Metadata"="true"}
+<#$response = Invoke-WebRequest -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2021-01-01&resource=https://storage.azure.com" -Headers @{"Metadata"="true"}
 $token = ($response.Content | ConvertFrom-Json).access_token
 $headers = @{
     "Authorization" = "Bearer $token"
     "x-ms-version" = "2021-08-06"
-}
+}#>
 
 
 #######################################
 #    DOWNLOAD FILES TO DESTINATION    #
 #######################################
 # Create destination directory
-if (!(Test-Path $DestinationPath)) {
+if (!(Test-Path $DestinationPath)) {   
     New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
 }
 
 foreach ($blobName in $blobFiles) {
     $localFilePath = Join-Path $DestinationPath $blobName
     $blobUrl = "https://$storageAccountName.blob.core.windows.net/$containerName/$blobName"                
-    Invoke-WebRequest -Uri $blobUrl -Headers $headers -OutFile $localFilePath
+    #Invoke-WebRequest -Uri $blobUrl -Headers $headers -OutFile $localFilePath
+    Invoke-WebRequest -Uri $blobUrl -OutFile $localFilePath
 
     Write-Output "Downloading $blobName to $localFilePath..."
     try {
