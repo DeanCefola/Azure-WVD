@@ -27,8 +27,8 @@ Param (
 #    WVD Variables   #
 ######################
 $LocalWVDpath            = "c:\temp\wvd\"
-$WVDBootURI              = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
-$WVDAgentURI             = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv'
+$WVDBootURI              = 'https://go.microsoft.com/fwlink/?linkid=2310011'
+$WVDAgentURI             = 'https://go.microsoft.com/fwlink/?linkid=2311028'
 $FSLogixURI              = 'https://aka.ms/fslogix_download'
 $FSInstaller             = 'FSLogixAppsSetup.zip'
 $WVDAgentInstaller       = 'WVD-Agent.msi'
