@@ -21,6 +21,7 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "VolumeType" -Val
 ###############################
 #  Entra Kerberos + CredKeys  #
 ###############################
+
 # Enable Cloud Kerberos ticket retrieval (equivalent to the GPO / CSP)
 New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos" -Name "Parameters" -Force | Out-Null
 New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters" `
@@ -31,7 +32,15 @@ New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft" -Name "AzureADAccount" -Force
 New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\AzureADAccount" `
   -Name "LoadCredKeyFromProfile" -PropertyType DWord -Value 1 -Force | Out-Null
 
-Write-Host "Entra Kerberos enabled and Credential Manager profile binding configured."
+# Map .file.core.windows.net to the Entra ID Kerberos realm
+New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\HostToRealm\KERBEROS.MICROSOFTONLINE.COM" -Force | Out-Null
 
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\HostToRealm\KERBEROS.MICROSOFTONLINE.COM" `
+    -Name "SpnMappings" `
+    -PropertyType MultiString `
+    -Value ".file.core.windows.net" `
+    -Force | Out-Null
+
+Write-Host "Entra Kerberos enabled and Credential Manager profile binding configured."
 
 write-host "Configuration Complete"
