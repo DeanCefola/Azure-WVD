@@ -1,22 +1,6 @@
 write-host "Configuring FSLogix"
 
 
-###################
-#    Variables    #
-###################
-$fileServer="<StorageAccountName>.file.core.windows.net"
-$user="localhost\<StorageAccountName>"
-$profileShare="\\$($fileServer)\<ProfileShareName>"
-$secret="<StorageAccountAccessKey>"
-
-
-###########################################
-#    Execute Command In SYSTEM Context    #
-###########################################
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "LsaCfgFlags" -Value 0 -force
-cmd.exe /c "cmdkey.exe /add:$fileServer /user:$($user) /pass:$($secret)"
-
-
 ################
 #    Profile   #
 ################
@@ -32,7 +16,22 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "KeepLocalDir" -V
 New-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "ProfileType" -Value 0 -force
 New-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "SizeInMBs" -Value 40000 -force
 New-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "VolumeType" -Value "VHDX" -force
-New-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "AccessNetworkAsComputerObject" -Value "1" -force
+
+
+###############################
+#  Entra Kerberos + CredKeys  #
+###############################
+# Enable Cloud Kerberos ticket retrieval (equivalent to the GPO / CSP)
+New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos" -Name "Parameters" -Force | Out-Null
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters" `
+  -Name "CloudKerberosTicketRetrievalEnabled" -PropertyType DWord -Value 1 -Force | Out-Null
+
+# Ensure Credential Manager keys are taken from the currently loading profile (FSLogix roaming)
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft" -Name "AzureADAccount" -Force | Out-Null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\AzureADAccount" `
+  -Name "LoadCredKeyFromProfile" -PropertyType DWord -Value 1 -Force | Out-Null
+
+Write-Host "Entra Kerberos enabled and Credential Manager profile binding configured."
 
 
 write-host "Configuration Complete"
