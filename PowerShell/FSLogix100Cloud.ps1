@@ -1,7 +1,7 @@
 ###################
 #    Variables    #
 ###################
-$profileShare = "<ENTER SHARE UNC PATH>"
+$profileShare = "\\kbdxaz0t1asofc13n4m2xkqd.file.core.windows.net\fslogix"
 
 
 ################
