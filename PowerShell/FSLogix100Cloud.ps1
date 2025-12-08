@@ -1,9 +1,13 @@
-write-host "Configuring FSLogix"
+###################
+#    Variables    #
+###################
+$profileShare = "<ENTER SHARE UNC PATH>"
 
 
 ################
 #    Profile   #
 ################
+write-host "Configuring FSLogix"
 New-Item -Path "HKLM:\SOFTWARE" -Name "FSLogix" -ErrorAction Ignore
 New-Item -Path "HKLM:\SOFTWARE\FSLogix" -Name "Profiles" -ErrorAction Ignore
 New-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "Enabled" -Value 1 -force
