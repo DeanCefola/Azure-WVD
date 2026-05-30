@@ -1,0 +1,31 @@
+##########################
+#    Profile Settings    #
+##########################
+"DeleteLocalProfileWhenVHDShouldApply"=dword:00000001
+"FlipFlopProfileDirectoryName"=dword:00000001
+"IsDynamic"=dword:00000001
+"LockedRetryCount"=dword:00000012
+"LockedRetryInterval"=dword:00000005
+"OutlookCachedMode"=dword:00000001
+"PreventLoginWithFailure"=dword:00000001
+"ProfileType"=dword:00000001
+"ReAttachIntervalSeconds"=dword:00000012
+"ReAttachRetryCount"=dword:00000060
+"RedirectType"=dword:00000002
+"SizeInMBs"=dword:00025000
+"VolumeType"=string:"vhdx"
+
+
+##############################
+#    Cloud Cache Settings    #
+##############################
+"HealthyProvidersRequiredForRegister"=dword:00000001
+"HealthyProvidersRequiredForUnregister"=dword:00000001
+"ClearCacheOnLogoff"=dword:00000001
+
+
+##############################
+#    App Service Settings    #
+##############################
+"RoamRecycleBin"=dword:00000001
+"VHDCompactDisk"=dword:00000001
